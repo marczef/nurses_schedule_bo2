@@ -1,11 +1,13 @@
 from dataclasses import dataclass
 import numpy as np
 import random
+from math import inf
+
 
 class Data:
 
     def __init__(self, number_of_nurses_, number_of_rooms_):
-        self.number_of_room = number_of_rooms_
+        self.number_of_rooms = number_of_rooms_
         self.number_of_nurses = number_of_nurses_
         self.next_id_nurse = 0
         self.next_id_room = 0
@@ -14,8 +16,11 @@ class Data:
 
         for i in range(self.number_of_nurses):
             self.add_nurse()
-        for i in range(self.number_of_room):
+        for i in range(self.number_of_rooms):
             self.add_room()
+
+        self.print_nurses()
+        self.print_room()
 
     def add_nurse(self):
         self.nurses.append(Nurse(self.next_id_nurse))
@@ -41,9 +46,52 @@ class Nurse:
         self.number_of_hours = 0
 
 class Solution:
-    def __init__(self):
-        data = Data(5, 6)
-        solution = np.ndarray(shape=(4*31, data.number_of_rooms), dtype=int)
+    def __init__(self, number_of_nurses_, number_of_rooms_):
+        self.number_of_rooms = number_of_rooms_
+        self.number_of_nurses = number_of_nurses_
+        self.data = Data(self.number_of_nurses, self.number_of_rooms)
+        self.solution = np.ndarray(shape=(4*31, self.data.number_of_rooms,3), dtype=float)
+
+        for i in range(self.solution.shape[1]):
+            for j in range(self.solution.shape[0]):
+                for nr in range(0,2):
+                    self.solution[j][i][nr] = inf
+
+        self.random_solution(0)
+        self.write_schedule()
+
+    def random_solution(self, shift):
+        for i in self.data.nurses:
+            for j in self.data.rooms:
+                if j.priority == 2 and i.status >= 3 and \
+                        self.solution[j.id][shift][0] == inf and self.solution[shift][j.id][0] == inf:
+                    self.solution[shift][j.id][0] = i.id
+                    break
+                elif j.priority == 2 and i.status >= 3 and self.solution[shift][j.id][0] != inf \
+                        and self.solution[shift][j.id][0] == inf:
+                    self.solution[shift][j.id][1] = i.id
+                    break
+                elif j.priority == 1 and self.solution[shift][j.id][0] == inf:
+                    self.solution[shift][j.id][0] = i.id
+                    self.solution[shift][j.id][1] = -1
+
+
+    def write_schedule(self):
+        for i in range(self.solution.shape[1]):
+            for j in range(self.solution.shape[0]):
+                print("[", end="")
+                for nr in range(0,2):
+                    if nr == 0:
+                        print(self.solution[j][i][nr]," ", end="")
+                    else:
+                        print(self.solution[j][i][nr], end="")
+                print("]", end="")
+            print("")
+
+
+
+
+
 
 
 class Room:
