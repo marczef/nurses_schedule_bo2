@@ -68,13 +68,13 @@ class Solution:
                     self.solution[shift][j.id][0] = i.id
                     break
                 elif j.priority == 2 and i.status >= 3 and self.solution[shift][j.id][0] != inf \
-                        and self.solution[shift][j.id][0] == inf:
+                        and self.solution[shift][j.id][1] == inf:
                     self.solution[shift][j.id][1] = i.id
                     break
                 elif j.priority == 1 and self.solution[shift][j.id][0] == inf:
                     self.solution[shift][j.id][0] = i.id
                     self.solution[shift][j.id][1] = -1
-
+                    break
 
     def write_schedule(self):
         for i in range(self.solution.shape[1]):
@@ -87,12 +87,6 @@ class Solution:
                         print(self.solution[j][i][nr], end="")
                 print("]", end="")
             print("")
-
-
-
-
-
-
 
 class Room:
     def __init__(self, next_id):
