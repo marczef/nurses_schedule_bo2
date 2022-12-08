@@ -30,18 +30,18 @@ class Data:
     def print_nurses(self):
         for i in self.nurses:
             if not i.part_time:
-                print("Nurse: ", i.id, ", status: ", i.status, ", worked hours: ", i.number_of_hours)
+                print("Nurse: ", i.id, ", qualifications: ", i.qualifications, ", worked hours: ", i.number_of_hours)
             else:
-                print("Nurse: ", i.id, ", status: ", i.status, ", worked hours: ", i.number_of_hours, ", part-time")
+                print("Nurse: ", i.id, ", qualifications: ", i.qualifications, ", worked hours: ", i.number_of_hours, ", part-time")
 
     def print_room(self):
         for i in self.rooms:
-            print("Room: ", i.id, ", priority: ", i.priority)
+            print("Room: ", i.id, ", priority: ", i.priority, ", isolation: ", i.isolation)
 
 class Nurse:
 
     def __init__(self, next_id, part_time = False):
-        self.status = random.randint(1,5)
+        self.qualifications = random.randint(1,5)
         self.id = next_id
         self.number_of_hours = 0
 
@@ -80,12 +80,20 @@ class Weekly:
 
 class Solution:
     """Klasa generująca rozwiązanie miesięczne"""
-    def __init__(self, data, month):
+    def __init__(self, data, year, month, holidays):
+        self.year = year
         self.month = month
+        self.holidays = holidays
+        this_month = monthcalendar(year, month)
         # self.weekly = Weekly(data)
+        protruding_days = this_month.sum - 4 * 7
+        max_working_time_this_month = (8 * 5) * 4 + 8 * protruding_days - 8 * holidays
+        basic_salary_per_hour = random.randint(10,30)
+        salary = [[2*basic_salary_per_hour, 2.5*basic_salary_per_hour, 2.5*basic_salary_per_hour, 2.5*basic_salary_per_hour],
+                  [basic_salary_per_hour, 0.5*basic_salary_per_hour, 2*basic_salary_per_hour, 2*basic_salary_per_hour]]
 
         #Działamy na dniach z kalendarza
-        self.solution = np.array(monthcalendar(2022, month), dtype = object)
+        self.solution = np.array(this_month, dtype = object)
 
         #Każdy dzień z kalendarza jest klasą Daily
         for i in range(self.solution.shape[0]):
@@ -105,11 +113,16 @@ class Solution:
 
 
 class Room:
-    def __init__(self, next_id):
-        self.priority = random.randint(1,2)
+    def __init__(self, next_id, , number_of_beds_, isolation = False):
+        self.priority = random.randint(1,5)
         self.id = next_id
+        self.number_of_beds = number_of_beds_
+        self.isolation = isolation
 
-        if self.priority == 1:
-            self.needed_number_of_nurses = 1
+        if self.isolation is True:
+            self.needed_number_of_nurses = number_of_beds_
         else:
-            self.needed_number_of_nurses = 2
+            if number_of_beds_%2 == 0:
+                self.needed_number_of_nurses = number_of_beds_/2
+            else:
+                self.needed_number_of_nurses = (number_of_beds_ + 1)/2
