@@ -50,7 +50,7 @@ class Solution:
         self.number_of_rooms = number_of_rooms_
         self.number_of_nurses = number_of_nurses_
         self.data = Data(self.number_of_nurses, self.number_of_rooms)
-        self.solution = np.ndarray(shape=(4*31, self.data.number_of_rooms,3), dtype=float)
+        self.solution = np.ndarray(shape=(4*7, self.data.number_of_rooms,3), dtype=float)
 
         for i in range(self.solution.shape[1]):
             for j in range(self.solution.shape[0]):
@@ -60,7 +60,7 @@ class Solution:
         self.random_solution(0)
         self.write_schedule()
 
-    def random_solution(self, shift):
+    def first_solution(self, shift):
         for i in self.data.nurses:
             for j in self.data.rooms:
                 if j.priority == 2 and i.status >= 3 and \
