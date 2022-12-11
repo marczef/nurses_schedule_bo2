@@ -51,6 +51,7 @@ class Solution:
         self.number_of_nurses = number_of_nurses_
         self.data = Data(self.number_of_nurses, self.number_of_rooms)
         self.solution = np.ndarray(shape=(4*7, self.data.number_of_rooms,3), dtype=float)
+        self.data.nurses.sort(key=lambda x: x.status)
 
         for i in range(self.solution.shape[1]):
             for j in range(self.solution.shape[0]):
@@ -58,21 +59,27 @@ class Solution:
                     self.solution[j][i][nr] = inf
 
         self.first_solution(0)
+        self.first_solution(1)
+        self.data.print_nurses()
+
 
     def first_solution(self, shift):
         for i in self.data.nurses:
             for j in self.data.rooms:
                 if j.priority == 2 and i.status >= 3 and \
-                        self.solution[j.id][shift][0] == inf and self.solution[shift][j.id][0] == inf:
+                        self.solution[shift][j.id][0] == inf and self.solution[shift][j.id][1] == inf:
                     self.solution[shift][j.id][0] = i.id
+                    i.number_of_hours += 6
                     break
                 elif j.priority == 2 and i.status >= 3 and self.solution[shift][j.id][0] != inf \
                         and self.solution[shift][j.id][1] == inf:
                     self.solution[shift][j.id][1] = i.id
+                    i.number_of_hours += 6
                     break
                 elif j.priority == 1 and self.solution[shift][j.id][0] == inf:
                     self.solution[shift][j.id][0] = i.id
                     self.solution[shift][j.id][1] = -1
+                    i.number_of_hours += 6
                     break
 
     def write_schedule(self):
