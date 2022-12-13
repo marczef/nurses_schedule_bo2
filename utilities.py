@@ -60,7 +60,8 @@ class Solution:
 
         self.data.print_nurses()
         self.data.print_room()
-        self.value_of_solution()
+
+        self.correction()
 
     def value_of_solution(self):
         overall_hours = self.solution.shape[0]*6*self.data.number_of_rooms/self.data.number_of_nurses
@@ -69,7 +70,7 @@ class Solution:
             sum += (overall_hours - i.number_of_hours)**2
         self.value = np.sqrt(sum / self.data.number_of_nurses)
 
-        print(self.value)
+        return self.value
 
     def first_solution(self, shift, before_before=[]):
         before = []
@@ -100,12 +101,95 @@ class Solution:
         return before
 
 
+
+    def min_max_hours(self):
+
+        nurses_hours1 = [nurse.number_of_hours for nurse in self.data.nurses]
+
+        min_hours1 = min(nurses_hours1)
+        min_hours_nurse1 = self.data.nurses[nurses_hours1.index(min_hours1)]
+        max_hours1 = max(nurses_hours1)
+        max_hours_nurse1 = self.data.nurses[nurses_hours1.index(max_hours1)]
+
+
+        return min_hours_nurse1, max_hours_nurse1
+
+#NIE WKLEJAMY PIELĘGNIAREK W MIEJSCE INF W CELU POPRAWY - NIE JEST TO MOŻLIWE, NALEŻY DODAĆ WYSTARCZAJĄCĄ ILOŚĆ PIELĘGNIAREK
+
+
+    def nurses_swap(self, nurse_min, nurse_max):
+        flag = 0
+        i1 = 0
+        j1 = 0
+        for i in range(self.solution.shape[0]):
+            for j in self.data.rooms:
+                if nurse_min.id in self.solution[i][j.id]:
+                    break
+                if self.solution[i][j.id][0] == nurse_max.id:
+                    flag = 1
+                    self.solution[i][j.id][0] = nurse_min.id
+                    self.solution[i+1][j.id][0] = nurse_min.id
+                    self.data.nurses[nurse_min.id].number_of_hours += 12
+                    self.data.nurses[nurse_max.id].number_of_hours -= 12
+                    i1 = i
+                    j1 = j
+                    break
+                if self.solution[i][j.id][1] == nurse_max.id:
+                    flag = 1
+                    self.solution[i][j.id][1] = nurse_min.id
+                    self.solution[i+1][j.id][1] = nurse_min.id
+                    self.data.nurses[nurse_min.id].number_of_hours += 12
+                    self.data.nurses[nurse_max.id].number_of_hours -= 12
+                    i1 = i
+                    j1 = j
+                    break
+            if flag:
+                break
+        return i1, j1
+
+
+    def correction(self):
+        self.write_schedule()
+        tabu_list = []
+        value_of_solution = self.value_of_solution()
+        print(value_of_solution)
+        min_hours_nurse1, max_hours_nurse1 = self.min_max_hours()
+        i1, j1 = self.nurses_swap(min_hours_nurse1, max_hours_nurse1)
+        tabu_list.append([i1, j1.id])
+        while 1:
+            i1_old, j1_old = i1, j1
+            tabu_list.remove([i1_old, j1_old.id])
+            value_of_solution_before = self.value_of_solution()
+            min_hours_nurse1, max_hours_nurse1 = self.min_max_hours()
+            i1, j1 = self.nurses_swap(min_hours_nurse1, max_hours_nurse1)
+
+            if [i1, j1.id] in tabu_list:
+                print("Ruch zakazany")
+
+            value_of_solution_after = self.value_of_solution()
+
+            print(value_of_solution_after)
+
+            tabu_list.append([i1, j1.id])
+            if value_of_solution_after >= value_of_solution_before:
+                break
+            else:
+                tabu_list.append([i1, j1.id])
+
+
+        value_of_solution = self.value_of_solution()
+
+        self.data.print_nurses()
+
+
+
     def two_week(self):
         self.first_solution(0)
         before_before = self.first_solution(1)
         for i in range(2, 28, 2):
             self.first_solution(i, before_before)
             before_before = self.first_solution(i+1, before_before)
+        self.data.nurses.sort(key=lambda x: x.id)
 
 
     def write_schedule(self):
