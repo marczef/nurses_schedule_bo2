@@ -19,9 +19,6 @@ class Data:
         for i in range(self.number_of_rooms):
             self.add_room()
 
-        self.print_nurses()
-        self.print_room()
-
     def add_nurse(self):
         self.nurses.append(Nurse(self.next_id_nurse))
         self.next_id_nurse += 1
@@ -52,6 +49,7 @@ class Solution:
         self.data = Data(self.number_of_nurses, self.number_of_rooms)
         self.solution = np.ndarray(shape=(4*7, self.data.number_of_rooms,3), dtype=float)
         self.data.nurses.sort(key=lambda x: 0 if (x.status < 3) else 1)
+        self.value = 0
 
         for i in range(self.solution.shape[1]):
             for j in range(self.solution.shape[0]):
@@ -59,8 +57,19 @@ class Solution:
                     self.solution[j][i][nr] = inf
 
         self.two_week()
-        self.data.print_nurses()
 
+        self.data.print_nurses()
+        self.data.print_room()
+        self.value_of_solution()
+
+    def value_of_solution(self):
+        overall_hours = self.solution.shape[0]*6*self.data.number_of_rooms/self.data.number_of_nurses
+        sum = 0
+        for i in self.data.nurses:
+            sum += (overall_hours - i.number_of_hours)**2
+        self.value = np.sqrt(sum / self.data.number_of_nurses)
+
+        print(self.value)
 
     def first_solution(self, shift, before_before=[]):
         before = []
