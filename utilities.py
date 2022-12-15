@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import numpy as np
 import random
 from math import inf
+import copy
 
 
 class Data:
@@ -50,6 +51,7 @@ class Solution:
         self.solution = np.ndarray(shape=(4*7, self.data.number_of_rooms,3), dtype=float)
         self.data.nurses.sort(key=lambda x: 0 if (x.status < 3) else 1)
         self.value = 0
+        self.kara = 0
 
         for i in range(self.solution.shape[1]):
             for j in range(self.solution.shape[0]):
@@ -57,11 +59,15 @@ class Solution:
                     self.solution[j][i][nr] = inf
 
         self.two_week()
+        print(self.value_of_solution())
 
         self.data.print_nurses()
         self.data.print_room()
 
-        self.correction()
+        best_sol = self.correction()
+        print(best_sol.value_of_solution())
+
+
 
     def value_of_solution(self):
         overall_hours = self.solution.shape[0]*6*self.data.number_of_rooms/self.data.number_of_nurses
@@ -69,6 +75,7 @@ class Solution:
         for i in self.data.nurses:
             sum += (overall_hours - i.number_of_hours)**2
         self.value = np.sqrt(sum / self.data.number_of_nurses)
+        self.value += self.kara
 
         return self.value
 
@@ -117,69 +124,86 @@ class Solution:
 #NIE WKLEJAMY PIELĘGNIAREK W MIEJSCE INF W CELU POPRAWY - NIE JEST TO MOŻLIWE, NALEŻY DODAĆ WYSTARCZAJĄCĄ ILOŚĆ PIELĘGNIAREK
 
 
-    def nurses_swap(self, nurse_min, nurse_max):
+    def nurses_swap(self, nurse_min, nurse_max, tabu_list):
         flag = 0
         i1 = 0
         j1 = 0
-        for i in range(self.solution.shape[0]):
+
+        for i in range(0, self.solution.shape[0], 2):
+            flag = 0
             for j in self.data.rooms:
-                if nurse_min.id in self.solution[i][j.id]:
-                    break
-                if self.solution[i][j.id][0] == nurse_max.id:
-                    flag = 1
-                    self.solution[i][j.id][0] = nurse_min.id
-                    self.solution[i+1][j.id][0] = nurse_min.id
-                    self.data.nurses[nurse_min.id].number_of_hours += 12
-                    self.data.nurses[nurse_max.id].number_of_hours -= 12
-                    i1 = i
-                    j1 = j
-                    break
-                if self.solution[i][j.id][1] == nurse_max.id:
-                    flag = 1
-                    self.solution[i][j.id][1] = nurse_min.id
-                    self.solution[i+1][j.id][1] = nurse_min.id
-                    self.data.nurses[nurse_min.id].number_of_hours += 12
-                    self.data.nurses[nurse_max.id].number_of_hours -= 12
-                    i1 = i
-                    j1 = j
-                    break
+                if [i, j.id] not in tabu_list:
+                    if nurse_min.id in self.solution[i][j.id]:
+                        break
+                    if self.solution[i][j.id][0] == nurse_max.id \
+                            and nurse_min.id not in [self.solution[i][j][0] for j in range(self.number_of_rooms)] \
+                            and nurse_min.id not in [self.solution[i][j][1] for j in range(self.number_of_rooms)]:
+                        if j.priority == 2 and nurse_min.status <3:
+                            self.kara += 1
+                        flag = 1
+                        self.solution[i][j.id][0] = nurse_min.id
+                        self.solution[i+1][j.id][0] = nurse_min.id
+                        self.data.nurses[nurse_min.id].number_of_hours += 12
+                        self.data.nurses[nurse_max.id].number_of_hours -= 12
+                        i1 = i
+                        j1 = j
+                        break
+                    if self.solution[i][j.id][1] == nurse_max.id \
+                            and nurse_min.id not in [self.solution[i][j][0] for j in range(self.number_of_rooms)] \
+                            and nurse_min.id not in [self.solution[i][j][1] for j in range(self.number_of_rooms)]:
+                        if j.priority == 2 and nurse_min.status <3:
+                            self.kara += 1
+                        flag = 1
+                        self.solution[i][j.id][1] = nurse_min.id
+                        self.solution[i+1][j.id][1] = nurse_min.id
+                        self.data.nurses[nurse_min.id].number_of_hours += 12
+                        self.data.nurses[nurse_max.id].number_of_hours -= 12
+                        i1 = i
+                        j1 = j
+                        break
+                else:
+                    # print("Ruch zakazany")
+                    pass
             if flag:
                 break
-        return i1, j1
+        if flag:
+            return i1, j1
 
 
     def correction(self):
+        flag = 0
         self.write_schedule()
         tabu_list = []
-        value_of_solution = self.value_of_solution()
-        print(value_of_solution)
+
+        best_sol = copy.deepcopy(self)
+
         min_hours_nurse1, max_hours_nurse1 = self.min_max_hours()
-        i1, j1 = self.nurses_swap(min_hours_nurse1, max_hours_nurse1)
+        i1, j1 = self.nurses_swap(min_hours_nurse1, max_hours_nurse1, tabu_list)
         tabu_list.append([i1, j1.id])
         while 1:
             i1_old, j1_old = i1, j1
             tabu_list.remove([i1_old, j1_old.id])
+
             value_of_solution_before = self.value_of_solution()
             min_hours_nurse1, max_hours_nurse1 = self.min_max_hours()
-            i1, j1 = self.nurses_swap(min_hours_nurse1, max_hours_nurse1)
-
-            if [i1, j1.id] in tabu_list:
-                print("Ruch zakazany")
-
+            i1, j1 = self.nurses_swap(min_hours_nurse1, max_hours_nurse1, tabu_list)
             value_of_solution_after = self.value_of_solution()
 
-            print(value_of_solution_after)
 
             tabu_list.append([i1, j1.id])
+            if value_of_solution_after < best_sol.value_of_solution():
+                best_sol = copy.deepcopy(self)
             if value_of_solution_after >= value_of_solution_before:
-                break
+                flag +=1
             else:
                 tabu_list.append([i1, j1.id])
+            if flag > 10:
+                break
 
+        # self = best_sol
+        best_sol.data.print_nurses()
+        return best_sol
 
-        value_of_solution = self.value_of_solution()
-
-        self.data.print_nurses()
 
 
 
