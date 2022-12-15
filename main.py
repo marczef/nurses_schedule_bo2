@@ -1,7 +1,7 @@
-from utilities import *
+from solution import Solution
 
 def main():
-    data = Solution(25,4)
+    data = Solution(25, 4)
 
     data.write_schedule()
 
