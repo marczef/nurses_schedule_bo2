@@ -43,24 +43,31 @@ class Solution:
         print(best_sol.value_of_solution())
         best_sol.write_schedule()
 
+    def has_nurse_overall_hours(self, nurse):
+        base_work_hours = self.solution.shape[0] * 6 * self.data.number_of_rooms / self.data.number_of_nurses
+        overall_hours = nurse.number_of_hours - base_work_hours
+        if overall_hours != 0:
+            return True
+
+
     def was_on_previous_night_shift(self, shift, nurse_id):
         if shift <= 3:
             return False
 
         if shift % 4 == 0:
-            if (nurse_id in self.solution[shift - 1]) or (nurse_id in self.solution[shift - 2]):
+            if (nurse_id in self.solution[shift - 1][:]) or (nurse_id in self.solution[shift - 2][:]):
                 return True
 
         if shift % 4 == 1:
-            if (nurse_id in self.solution[shift - 2]) or (nurse_id in self.solution[shift - 3]):
+            if (nurse_id in self.solution[shift - 2][:]) or (nurse_id in self.solution[shift - 3][:]):
                 return True
 
         if shift % 4 == 2:
-            if (nurse_id in self.solution[shift - 3]) or (nurse_id in self.solution[shift - 4]):
+            if (nurse_id in self.solution[shift - 3][:]) or (nurse_id in self.solution[shift - 4][:]):
                 return True
 
         if shift % 4 == 3:
-            if (nurse_id in self.solution[shift - 4]) or (nurse_id in self.solution[shift - 5]):
+            if (nurse_id in self.solution[shift - 4][:]) or (nurse_id in self.solution[shift - 5][:]):
                 return True
 
         return False
@@ -70,19 +77,19 @@ class Solution:
             return False
 
         if shift % 4 == 0:
-            if (nurse_id in self.solution[shift + 2]) or (nurse_id in self.solution[shift + 3]):
+            if (nurse_id in self.solution[shift + 2][:]) or (nurse_id in self.solution[shift + 3][:]):
                 return True
 
         if shift % 4 == 1:
-            if (nurse_id in self.solution[shift + 1]) or (nurse_id in self.solution[shift + 2]):
+            if (nurse_id in self.solution[shift + 1][:]) or (nurse_id in self.solution[shift + 2][:]):
                 return True
 
         if shift % 4 == 2:
-            if (nurse_id in self.solution[shift + 4]) or (nurse_id in self.solution[shift + 5]):
+            if (nurse_id in self.solution[shift + 4][:]) or (nurse_id in self.solution[shift + 5][:]):
                 return True
 
         if shift % 4 == 3:
-            if (nurse_id in self.solution[shift + 3]) or (nurse_id in self.solution[shift + 4]):
+            if (nurse_id in self.solution[shift + 3][:]) or (nurse_id in self.solution[shift + 4][:]):
                 return True
 
         return False
@@ -91,8 +98,8 @@ class Solution:
         if shift >= 4 * 7 - 4:
             return False
 
-        if (nurse_id in self.solution[shift + 1]) or (nurse_id in self.solution[shift + 2]) \
-                or (nurse_id in self.solution[shift + 3]) or (nurse_id in self.solution[shift + 4]):
+        if (nurse_id in self.solution[shift + 1][:]) or (nurse_id in self.solution[shift + 2][:]) \
+                or (nurse_id in self.solution[shift + 3][:]) or (nurse_id in self.solution[shift + 4][:]):
             return True
 
         return False
@@ -101,7 +108,7 @@ class Solution:
         if shift <= 2:
             return False
 
-        if (nurse_id in self.solution[shift - 1]) or (nurse_id in self.solution[shift - 2]):
+        if (nurse_id in self.solution[shift - 1][:]) or (nurse_id in self.solution[shift - 2][:]):
             return True
 
         return False

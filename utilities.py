@@ -14,6 +14,7 @@ class Data:
         self.next_id_room = 0
         self.nurses = []
         self.rooms = []
+        self.wage = random.randint(20, 25)
 
         for i in range(self.number_of_nurses):
             self.add_nurse()
@@ -30,7 +31,7 @@ class Data:
 
     def print_nurses(self):
         for i in self.nurses:
-            print("Nurse: ", i.id, ", status: ", i.status, ", worked hours: ", i.number_of_hours)
+            print("Nurse: ", i.id, ", status: ", i.status, ", worked hours: ", i.number_of_hours, ', salary: ', i.salary)
 
     def print_room(self):
         for i in self.rooms:
@@ -42,6 +43,7 @@ class Nurse:
         self.status = random.randint(1,5)
         self.id = next_id
         self.number_of_hours = 0
+        self.salary = 0
 
 
 
