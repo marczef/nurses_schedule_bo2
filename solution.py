@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -
 
 from utilities import *
+from calendar import monthrange
 
 
 def is_night_shift(shift):
@@ -13,11 +14,16 @@ def is_day_shift(shift):
 
 
 class Solution:
-    def __init__(self, number_of_nurses_, number_of_rooms_):
+    def __init__(self, year_, month_, number_of_nurses_, number_of_rooms_):
         self.number_of_rooms = number_of_rooms_
         self.number_of_nurses = number_of_nurses_
+        self.month = month_
+        self.year = year_
+        # first_day_of_month mówi, jaki dzień tygodnia wypada w pierwszy dzień miesiąca (0 - pon, 6 - ndz)
+        # size_of_month - ile dni w miesiącu
+        (self.first_day_of_month, self.size_of_month) = monthrange(self.year, self.month)
         self.data = Data(self.number_of_nurses, self.number_of_rooms)
-        self.solution = np.ndarray(shape=(4 * 7, self.data.number_of_rooms, 2), dtype=float)
+        self.solution = np.ndarray(shape=(4 * self.size_of_month, self.data.number_of_rooms, 2), dtype=float)
         self.data.nurses.sort(key=lambda x: 0 if (x.status < 3) else 1)
         self.value = 0
         self.kara = 0
@@ -34,6 +40,7 @@ class Solution:
         print(self.value_of_solution())
         self.write_schedule()
 
+
         print("\n")
 
         # Najlepsze rozwiązanie
@@ -42,6 +49,7 @@ class Solution:
         best_sol.data.print_room()
         print(best_sol.value_of_solution())
         best_sol.write_schedule()
+
 
     def has_nurse_overall_hours(self, nurse):
         base_work_hours = self.solution.shape[0] * 6 * self.data.number_of_rooms / self.data.number_of_nurses
@@ -73,7 +81,7 @@ class Solution:
         return False
 
     def is_in_next_night_shift(self, shift, nurse_id):
-        if shift >= 7 * 4 - 2:
+        if shift >= self.solution.shape[0] - 2:
             return False
 
         if shift % 4 == 0:
@@ -95,7 +103,7 @@ class Solution:
         return False
 
     def is_in_next_24hours(self, shift, nurse_id):
-        if shift >= 4 * 7 - 4:
+        if shift >= self.solution.shape[0] - 4:
             return False
 
         if (nurse_id in self.solution[shift + 1][:]) or (nurse_id in self.solution[shift + 2][:]) \
@@ -184,7 +192,7 @@ class Solution:
         # Na końcu sortujemy pielęgniarki aby nie powodowało to późniejszych błędów
         self.first_solution(0)
         before_before = self.first_solution(1)
-        for i in range(2, 28, 2):
+        for i in range(2, self.solution.shape[0], 2):
             self.first_solution(i, before_before)
             before_before = self.first_solution(i + 1, before_before)
         self.data.nurses.sort(key=lambda x: x.id)
