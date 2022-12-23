@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -
+import numpy as np
 
 from utilities import *
 from calendar import monthrange
@@ -21,12 +22,14 @@ class Solution:
         self.year = year_
         # first_day_of_month mówi, jaki dzień tygodnia wypada w pierwszy dzień miesiąca (0 - pon, 6 - ndz)
         # size_of_month - ile dni w miesiącu
-        (self.first_day_of_month, self.size_of_month) = monthrange(self.year, self.month)
+        (self.first_day_of_week_in_month, self.size_of_month) = monthrange(self.year, self.month)
         self.data = Data(self.number_of_nurses, self.number_of_rooms)
         self.solution = np.ndarray(shape=(4 * self.size_of_month, self.data.number_of_rooms, 2), dtype=float)
         self.data.nurses.sort(key=lambda x: 0 if (x.status < 3) else 1)
         self.value = 0
         self.kara = 0
+        # powyżej base_work_hours naliczają się nadgodziny
+        self.base_work_hours = 5*7*4 + (self.size_of_month - 4*7)*7  # - holidays*7
 
         for i in range(self.solution.shape[1]):
             for j in range(self.solution.shape[0]):
@@ -40,23 +43,76 @@ class Solution:
         print(self.value_of_solution())
         self.write_schedule()
 
-
         print("\n")
 
         # Najlepsze rozwiązanie
         best_sol = self.correction()
+        self.nurses_salary(best_sol)
         best_sol.data.print_nurses()
         best_sol.data.print_room()
         print(best_sol.value_of_solution())
         best_sol.write_schedule()
 
-
     def has_nurse_overall_hours(self, nurse):
-        base_work_hours = self.solution.shape[0] * 6 * self.data.number_of_rooms / self.data.number_of_nurses
-        overall_hours = nurse.number_of_hours - base_work_hours
-        if overall_hours != 0:
-            return True
+        overall_hours = nurse.number_of_hours - self.base_work_hours
+        return overall_hours > 0
 
+    def salary_for_each_day(self, day_of_week, shift, nurse):
+        if day_of_week <= 4:  # pon - pt
+            if is_day_shift(shift):
+                nurse.salary += 6 * self.data.wage
+            if is_night_shift(shift):
+                nurse.salary += 2 * 6 * self.data.wage
+        if day_of_week == 5:  # sob
+            if is_day_shift(shift):
+                nurse.salary += 1.5 * 6 * self.data.wage
+            if is_night_shift(shift):
+                nurse.salary += 2.5 * 6 * self.data.wage
+        if day_of_week == 6:  # ndz
+            if is_day_shift(shift):
+                nurse.salary += 2 * 6 * self.data.wage / 2
+            if is_night_shift(shift):
+                nurse.salary += 2.5 * 6 * self.data.wage / 2
+
+    def salary_depend_on_overall(self, day_of_week, nurses, shift, best_sol, temp_hours_nurses):
+        nurse1 = best_sol.data.nurses[int(nurses[0])]
+        if self.has_nurse_overall_hours(nurse1):
+            if temp_hours_nurses[nurse1.id] >= self.base_work_hours:
+                if is_day_shift(shift):
+                    nurse1.salary += 2 * 6 * self.data.wage
+                if is_night_shift(shift):
+                    nurse1.salary += 1.5 * 6 * self.data.wage
+                temp_hours_nurses[nurse1.id] += 6
+            else:
+                self.salary_for_each_day(day_of_week, shift, nurse1)
+        else:
+            self.salary_for_each_day(day_of_week, shift, nurse1)
+
+        if nurses[1] >= 0:
+            nurse2 = best_sol.data.nurses[int(nurses[1])]
+            if self.has_nurse_overall_hours(nurse2):
+                if temp_hours_nurses[nurse2.id] >= self.base_work_hours:
+                    if is_day_shift(shift):
+                        nurse2.salary += 2 * 6 * self.data.wage
+                    if is_night_shift(shift):
+                        nurse2.salary += 1.5 * 6 * self.data.wage
+                    temp_hours_nurses[nurse2.id] += 6
+                else:
+                    self.salary_for_each_day(day_of_week, shift, nurse2)
+            else:
+                self.salary_for_each_day(day_of_week, shift, nurse2)
+
+    def nurses_salary(self, best_sol):
+        day_of_week = self.first_day_of_week_in_month - 1
+        temp_hours_nurses = np.ndarray(self.number_of_nurses)
+        temp_hours_nurses[:] = 0
+        for shift in range(0, best_sol.solution.shape[0]):
+            if shift % 4 == 0:
+                day_of_week += 1
+                for nurses in best_sol.solution[shift][:]:
+                    self.salary_depend_on_overall(day_of_week, nurses, shift, best_sol, temp_hours_nurses)
+            if day_of_week == 6:
+                day_of_week = 0
 
     def was_on_previous_night_shift(self, shift, nurse_id):
         if shift <= 3:
@@ -138,10 +194,9 @@ class Solution:
             return True
 
     def value_of_solution(self):
-        overall_hours = self.solution.shape[0] * 6 * self.data.number_of_rooms / self.data.number_of_nurses
         sum = 0
         for i in self.data.nurses:
-            sum += (overall_hours - i.number_of_hours) ** 2
+            sum += np.abs((self.base_work_hours - i.number_of_hours) ** 2)
         self.value = np.sqrt(sum / self.data.number_of_nurses)
         self.value += self.kara
 
