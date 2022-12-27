@@ -4,6 +4,8 @@ import numpy as np
 
 from utilities import *
 from calendar import monthrange
+import matplotlib.pyplot as plt
+
 
 
 def is_night_shift(shift):
@@ -30,6 +32,8 @@ class Solution:
         self.kara = 0
         # powyżej base_work_hours naliczają się nadgodziny
         self.base_work_hours = 5*7*4 + (self.size_of_month - 4*7)*7  # - holidays*7
+        self.data_for_chart = []
+        self.best_solutions = []
 
         for i in range(self.solution.shape[1]):
             for j in range(self.solution.shape[0]):
@@ -52,6 +56,22 @@ class Solution:
         best_sol.data.print_room()
         print(best_sol.value_of_solution())
         best_sol.write_schedule()
+
+        fig = self.chart()
+        plt.show()
+
+    def chart(self):
+        print(self.best_solutions)
+        x = np.arange(len(self.data_for_chart))
+        y1 = self.data_for_chart
+        y2 = self.best_solutions
+        fig, ax = plt.subplots()
+        ax.plot(x, y1, x, y2)
+        ax.set_title('Objective function graph')
+        ax.set_xlabel('Iterations')
+        ax.set_ylabel('Function value')
+        ax.legend(["Solution","Best solution"])
+        return fig
 
     def has_nurse_overall_hours(self, nurse):
         overall_hours = nurse.number_of_hours - self.base_work_hours
@@ -339,6 +359,8 @@ class Solution:
 
         # Tworzymy kopię aby następnie móc przechowywyać w niej najlepsze rozwiązanie
         best_sol = copy.deepcopy(self)
+        self.data_for_chart.append(self.value_of_solution())
+        self.best_solutions.append(best_sol.value_of_solution())
 
         # Sprawdzamy czy czasem rozwiązanie pierwotne nie jest najlepsze
         # (w momencie gdy każda pielęgniarka ma tyle samo godzin)
@@ -351,6 +373,7 @@ class Solution:
         # robię podmianę pielęgniarek i zapamiętuję dla jakich indeksów zaszła zmiana
         min_hours_nurse1, max_hours_nurse1 = self.min_max_hours()
         i1, j1 = self.nurses_swap(min_hours_nurse1, max_hours_nurse1, tabu_list)
+
 
         # Jeżeli zwrócone indeksy = None (czyli nie zaszła zamiana -
         # sytuacja gdy mamy kilka pielęgniarek z max lub min godzinami i akurat dla tej nie ma możliwości zamiany)
@@ -365,6 +388,7 @@ class Solution:
 
         # Jeżeli j1 != None (była zmiana) dodajemy indeksy do listy tabu
         tabu_list.append([i1, j1.id])
+
 
         # Wykonujemy zamiany aż do momentu gdy 10 razy pod rząd nie będzie zachodzić poprawa
         while 1:
@@ -381,6 +405,7 @@ class Solution:
             value_of_solution_before = self.value_of_solution()
             min_hours_nurse1, max_hours_nurse1 = self.min_max_hours()
             i1, j1 = self.nurses_swap(min_hours_nurse1, max_hours_nurse1, tabu_list)
+
 
             # Tutaj podobnie jak poprzednio
             while j1 is None:
@@ -407,10 +432,13 @@ class Solution:
                 flag += 1
             else:
                 tabu_list.append([i1, j1.id])
-
+            self.data_for_chart.append(self.value_of_solution())
+            self.best_solutions.append(best_sol.value_of_solution())
             # Jeżeli 10 razy nasze rozwiązanie będzie gorsze od poprzedniego to zwracamy rozwiązanie
             if flag > 10:
                 return best_sol
+
+
 
     def write_schedule(self):
         """Wypisanie rozkładu"""
