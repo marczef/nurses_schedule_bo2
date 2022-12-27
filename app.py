@@ -16,11 +16,11 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.nam = QtWidgets.QLabel(self.centralwidget)
-        self.nam.setGeometry(QtCore.QRect(40, 40, 261, 31))
+        self.nam.setGeometry(QtCore.QRect(40, 30, 261, 41))
         self.nam.setObjectName("nam")
-        self.button1 = QtWidgets.QPushButton(self.centralwidget)
-        self.button1.setGeometry(QtCore.QRect(30, 310, 93, 28))
-        self.button1.setObjectName("button1")
+        self.submit = QtWidgets.QPushButton(self.centralwidget)
+        self.submit.setGeometry(QtCore.QRect(30, 310, 93, 28))
+        self.submit.setObjectName("submit")
         self.verticalLayoutWidget = QtWidgets.QWidget(self.centralwidget)
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(30, 360, 1041, 251))
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
@@ -32,6 +32,12 @@ class Ui_MainWindow(object):
         self.tableWidget.setColumnCount(0)
         self.tableWidget.setRowCount(0)
         self.verticalLayout.addWidget(self.tableWidget)
+        self.rooms = QtWidgets.QLineEdit(self.centralwidget)
+        self.rooms.setGeometry(QtCore.QRect(42, 70, 121, 31))
+        self.rooms.setObjectName("rooms")
+        self.select_rooms = QtWidgets.QPushButton(self.centralwidget)
+        self.select_rooms.setGeometry(QtCore.QRect(170, 67, 93, 41))
+        self.select_rooms.setObjectName("select_rooms")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1121, 26))
@@ -48,14 +54,20 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         self.data = Solution(2022, 12, 25, 4)
 
-        self.button1.clicked.connect(self.show_table)
+        self.submit.clicked.connect(self.show_table)
+        self.select_rooms.clicked.connect(self.save_rooms)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.nam.setText(_translate("MainWindow", "Hello, select number of nurses and rooms:"))
-        self.button1.setText(_translate("MainWindow", "Submit"))
+        self.submit.setText(_translate("MainWindow", "Submit"))
+        self.select_rooms.setText(_translate("MainWindow", "Select rooms"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
+
+    def save_rooms(self):
+        self.text = self.rooms.text()
+        self.rooms.clear()
 
     def show_table(self):
         self.tableWidget.setColumnCount(self.data.solution.shape[0])
@@ -64,7 +76,6 @@ class Ui_MainWindow(object):
         for i in range(self.data.solution.shape[0]):
             for j in range(self.data.solution.shape[1]):
                 self.tableWidget.setItem(j, i, QtWidgets.QTableWidgetItem(str(self.data.solution[i][j])))
-
 
 def app():
     import sys

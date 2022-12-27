@@ -18,16 +18,16 @@
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>40</y>
+      <y>30</y>
       <width>261</width>
-      <height>31</height>
+      <height>41</height>
      </rect>
     </property>
     <property name="text">
      <string>Hello, select number of nurses and rooms:</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="button1">
+   <widget class="QPushButton" name="submit">
     <property name="geometry">
      <rect>
       <x>30</x>
@@ -54,6 +54,29 @@
       <widget class="QTableWidget" name="tableWidget"/>
      </item>
     </layout>
+   </widget>
+   <widget class="QLineEdit" name="rooms">
+    <property name="geometry">
+     <rect>
+      <x>42</x>
+      <y>70</y>
+      <width>121</width>
+      <height>31</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="select_rooms">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>67</y>
+      <width>93</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Select rooms</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
