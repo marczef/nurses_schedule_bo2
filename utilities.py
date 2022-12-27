@@ -5,6 +5,7 @@ from math import inf
 import copy
 
 
+
 class Data:
 
     def __init__(self, number_of_nurses_, number_of_rooms_):
@@ -15,6 +16,7 @@ class Data:
         self.nurses = []
         self.rooms = []
         self.wage = random.randint(20, 25)
+
 
         for i in range(self.number_of_nurses):
             self.add_nurse()
