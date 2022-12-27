@@ -32,6 +32,10 @@ class Solution:
         self.kara = 0
         # powyżej base_work_hours naliczają się nadgodziny
         self.base_work_hours = 5*7*4 + (self.size_of_month - 4*7)*7  # - holidays*7
+
+        # minimalna ilość pielęgniarek
+        min_number_of_nurses = 5
+
         self.data_for_chart = []
         self.best_solutions = []
 
