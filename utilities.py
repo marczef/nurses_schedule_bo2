@@ -17,18 +17,20 @@ class Data:
         self.rooms = []
         self.wage = random.randint(20, 25)
 
+        flag = -1
 
         for i in range(self.number_of_nurses):
             self.add_nurse()
         for i in range(self.number_of_rooms):
-            self.add_room()
+            flag = flag * (-1)
+            self.add_room(flag)
 
     def add_nurse(self):
         self.nurses.append(Nurse(self.next_id_nurse))
         self.next_id_nurse += 1
 
-    def add_room(self):
-        self.rooms.append(Room(self.next_id_room))
+    def add_room(self, flag):
+        self.rooms.append(Room(self.next_id_room, flag))
         self.next_id_room += 1
 
     def print_nurses(self):
@@ -50,8 +52,13 @@ class Nurse:
 
 
 class Room:
-    def __init__(self, next_id):
-        self.priority = random.randint(1,2)
+    def __init__(self, next_id, flag):
+        # co drugi pokój ma priorytet 1, a co drugi 2
+        if flag == 1:
+            self.priority = 1
+        else:
+            self.priority = 2
+
         self.id = next_id
 
         if self.priority == 1:
