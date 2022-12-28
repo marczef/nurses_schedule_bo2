@@ -32,9 +32,8 @@ class Solution:
         self.kara = 0
         # powyżej base_work_hours naliczają się nadgodziny
         self.base_work_hours = 5*7*4 + (self.size_of_month - 4*7)*7  # - holidays*7
-
         # minimalna ilość pielęgniarek
-        min_number_of_nurses = 5
+        min_number_of_nurses = self.min_number_of_nurses_()
 
         self.data_for_chart = []
         self.best_solutions = []
@@ -76,6 +75,14 @@ class Solution:
         ax.set_ylabel('Function value')
         ax.legend(["Solution","Best solution"])
         return fig
+
+    def min_number_of_nurses_(self):
+        needed_nurses_per_shift = 0
+        for room in self.solution.data.rooms:
+            needed_nurses_per_shift += room.needed_number_of_nurses
+
+        # aby minimalnie wypełnić grafik (12 h zmian) wystarczą 3 pule pielęgniarek wystarczających na jeden dzień
+        return 3 * needed_nurses_per_shift
 
     def has_nurse_overall_hours(self, nurse):
         overall_hours = nurse.number_of_hours - self.base_work_hours
