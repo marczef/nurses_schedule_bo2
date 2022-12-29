@@ -78,7 +78,7 @@ class Solution:
 
     def min_number_of_nurses_(self):
         needed_nurses_per_shift = 0
-        for room in self.solution.data.rooms:
+        for room in self.data.rooms:
             needed_nurses_per_shift += room.needed_number_of_nurses
 
         # aby minimalnie wypełnić grafik (12 h zmian) wystarczą 3 pule pielęgniarek wystarczających na jeden dzień
