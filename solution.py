@@ -49,19 +49,27 @@ class Solution:
         self.data.print_room()
         print(self.value_of_solution())
         self.write_schedule()
+        if self.check_solution() is True:
+            print("Solution can't be found!")
+            print("\n")
+            self.value_of_solution = inf
+            print(self.value_of_solution)
+        else:
+            # Najlepsze rozwiązanie
+            best_sol = self.correction()
+            self.nurses_salary(best_sol)
+            best_sol.data.print_nurses()
+            best_sol.data.print_room()
+            print(best_sol.value_of_solution())
+            best_sol.write_schedule()
 
-        print("\n")
+            fig = self.chart()
+            plt.show()
 
-        # Najlepsze rozwiązanie
-        best_sol = self.correction()
-        self.nurses_salary(best_sol)
-        best_sol.data.print_nurses()
-        best_sol.data.print_room()
-        print(best_sol.value_of_solution())
-        best_sol.write_schedule()
 
-        fig = self.chart()
-        plt.show()
+    def check_solution(self):
+        if inf in self.solution:
+            return True
 
     def chart(self):
         print(self.best_solutions)
