@@ -307,6 +307,26 @@ class Solution:
 
         return min_hours_nurse1, max_hours_nurse1
 
+    def status_nurses(self, must_be_shuffled=0):
+        """Funkcja wyznacza pielęgniarki z tym samym statusem"""
+
+        # Parametr must_be_shuffled mówi nam o tym, że należy dokonać mieszania pielęgniarek
+        # aby znaleźć inną o tekim samym priorytecie
+        nurse2 = None
+        index = 0
+        random.shuffle(self.data.nurses)
+        while nurse2 is None:
+            nurse1 = self.data.nurses[index]
+            for i in self.data.nurses:
+                if i != nurse1:
+                    if i.status == nurse1.status:
+                        nurse2 = i
+                        break
+            index += 1
+        print(nurse1.number_of_hours, nurse2.number_of_hours)
+
+        return nurse1, nurse2
+
     def nurses_swap(self, nurse_min, nurse_max, tabu_list):
         """Funkcja wstawia pielęgniarkę z minimalną liczbą godzin w miejsce pielęgniarki z max liczbą godzin
         Wykonuje 1 zmianę"""
@@ -322,8 +342,8 @@ class Solution:
                 for j in self.data.rooms:
                     # Sprawdzam czy indeksy znajdują się na liście tabu(były wcześniej zmieniane)
                     if [i, j.id] not in tabu_list:
-                        # Sprawdzam czy w miejscu znajduje się max pielęgniarka, którą chcę zamienić
-                        # Sprawdzam czy w danej zmianie nie ma min pielęgniarki którą chcę wsadzić
+                        # Sprawdzam czy w miejscu znajduje siępielęgniarka, którą chcę zamienić
+                        # Sprawdzam czy w danej zmianie nie ma pielęgniarki którą chcę wsadzić
                         # Jeżeli sprzeczne priorytety - stosuję karę
                         # flag w celu określenia czy zaszła zmiana
                         if self.solution[i][j.id][0] == nurse_max.id \
@@ -369,7 +389,22 @@ class Solution:
         # Funkcja zwraca indeksy, dla których zachodzi zmiana (lub None, None gdy nie ma zmiany)
         return i1, j1
 
-    def correction(self):
+    def choose_method(self, method, tabu_list, must_be_shuffled = 0):
+        """Funkcja wybiera metodę do przeprowadzenia zamiany"""
+        #Pielęgniarki z min i max ilością godzin
+        if method == 'Min_Max':
+            min_hours_nurse1, max_hours_nurse1 = self.min_max_hours(must_be_shuffled)
+            i1, j1 = self.nurses_swap(min_hours_nurse1, max_hours_nurse1, tabu_list)
+        #Randomowe pielęgniarki
+        elif method == 'Random':
+            i1, j1 = self.nurses_swap(random.choice(self.data.nurses), random.choice(self.data.nurses), tabu_list)
+        #Pielęgniarki z tym samym priorytetem
+        elif method == 'Priority':
+            min_hours_nurse1, max_hours_nurse1 = self.status_nurses(must_be_shuffled)
+            i1, j1 = self.nurses_swap(min_hours_nurse1, max_hours_nurse1, tabu_list)
+        return i1, j1
+
+    def correction(self, method = 'Min_Max'):
         """Funkcja tworzy i zwraca najlepsze rozwiązanie"""
         flag = 0
         iteration1 = 0
@@ -382,26 +417,21 @@ class Solution:
         self.best_solutions.append(best_sol.value_of_solution())
 
         # Sprawdzamy czy czasem rozwiązanie pierwotne nie jest najlepsze
-        # (w momencie gdy każda pielęgniarka ma tyle samo godzin)
         # Jeżeli tak to zwracam je i program kończy się
         hours = [nurse.number_of_hours for nurse in self.data.nurses]
         if hours[:-1] == hours[1:]:
             return best_sol
 
-        # Wyliczam pielęgniarkę z najmniejszą i największą ilością godzin
-        # robię podmianę pielęgniarek i zapamiętuję dla jakich indeksów zaszła zmiana
-        min_hours_nurse1, max_hours_nurse1 = self.min_max_hours()
-        i1, j1 = self.nurses_swap(min_hours_nurse1, max_hours_nurse1, tabu_list)
+        # Wyliczam pielęgniarki do zamiany i zamieniam je
+        i1, j1 = self.choose_method(method, tabu_list)
 
 
         # Jeżeli zwrócone indeksy = None (czyli nie zaszła zamiana -
-        # sytuacja gdy mamy kilka pielęgniarek z max lub min godzinami i akurat dla tej nie ma możliwości zamiany)
         # sprawdzamy iteracja max aby się nie zapętlić
         # Gdy przekroczy iteracje i nie znajdzie odpowiednich pielęgniarek to zwracamy bieżące rozwiązanie
         while j1 is None:
             iteration1 += 1
-            min_hours_nurse1, max_hours_nurse1 = self.min_max_hours(1)
-            i1, j1 = self.nurses_swap(min_hours_nurse1, max_hours_nurse1, tabu_list)
+            i1, j1 = self.choose_method(method, tabu_list, 1)
             if iteration1 > 10:
                 return best_sol
 
@@ -419,18 +449,15 @@ class Solution:
                 tabu_list.remove([i1_old, j1_old.id])
 
             # Obiczam funkcje celu poprzedniego rozwiązania
-            # minimalne i maksymalne pielęgniarki
             # Indeksy zamian
             value_of_solution_before = self.value_of_solution()
-            min_hours_nurse1, max_hours_nurse1 = self.min_max_hours()
-            i1, j1 = self.nurses_swap(min_hours_nurse1, max_hours_nurse1, tabu_list)
+            i1, j1 = self.choose_method(method, tabu_list)
 
 
             # Tutaj podobnie jak poprzednio
             while j1 is None:
                 iteration2 += 1
-                min_hours_nurse1, max_hours_nurse1 = self.min_max_hours(1)
-                i1, j1 = self.nurses_swap(min_hours_nurse1, max_hours_nurse1, tabu_list)
+                i1, j1 = self.choose_method(method, tabu_list, 1)
                 if iteration2 > 10:
                     return best_sol
 
@@ -456,6 +483,7 @@ class Solution:
             # Jeżeli 10 razy nasze rozwiązanie będzie gorsze od poprzedniego to zwracamy rozwiązanie
             if flag > 10:
                 return best_sol
+
 
 
 
