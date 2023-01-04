@@ -37,6 +37,7 @@ class Solution:
 
         self.data_for_chart = []
         self.best_solutions = []
+        self.tabu_list_for_chart = []
 
         for i in range(self.solution.shape[1]):
             for j in range(self.solution.shape[0]):
@@ -76,12 +77,19 @@ class Solution:
         x = np.arange(len(self.data_for_chart))
         y1 = self.data_for_chart
         y2 = self.best_solutions
-        fig, ax = plt.subplots()
-        ax.plot(x, y1, x, y2)
-        ax.set_title('Objective function graph')
-        ax.set_xlabel('Iterations')
-        ax.set_ylabel('Function value')
-        ax.legend(["Solution","Best solution"])
+        y3 = self.tabu_list_for_chart
+
+        fig, [ax1, ax2] = plt.subplots(2, 1, layout='constrained')
+
+        ax1.plot(x, y1, x, y2)
+        ax1.set_title('Objective function graph')
+        ax1.set_xlabel('Iterations')
+        ax1.set_ylabel('Function value')
+        ax1.legend(["Solution","Best solution"])
+        ax2.plot(x, y3, 'g')
+        ax2.set_title('Tabu list graph')
+        ax2.set_xlabel('Iterations')
+        ax2.set_ylabel('Tabu list length')
         return fig
 
     def min_number_of_nurses_(self):
@@ -415,6 +423,7 @@ class Solution:
         best_sol = copy.deepcopy(self)
         self.data_for_chart.append(self.value_of_solution())
         self.best_solutions.append(best_sol.value_of_solution())
+        self.tabu_list_for_chart.append(0)
 
         # Sprawdzamy czy czasem rozwiązanie pierwotne nie jest najlepsze
         # Jeżeli tak to zwracam je i program kończy się
@@ -480,6 +489,7 @@ class Solution:
                 tabu_list.append([i1, j1.id])
             self.data_for_chart.append(self.value_of_solution())
             self.best_solutions.append(best_sol.value_of_solution())
+            self.tabu_list_for_chart.append(len(tabu_list))
             # Jeżeli 10 razy nasze rozwiązanie będzie gorsze od poprzedniego to zwracamy rozwiązanie
             if flag > 10:
                 return best_sol
