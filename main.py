@@ -2,7 +2,7 @@ from solution import Solution
 from app import *
 
 def main():
-    data = Solution(2022, 12, 30, 5)
+    data = Solution(2022, 12, 25, 4)
 
     data.write_schedule()
 

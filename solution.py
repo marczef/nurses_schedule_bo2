@@ -299,15 +299,18 @@ class Solution:
             before_before = self.first_solution(i + 1, before_before)
         self.data.nurses.sort(key=lambda x: x.id)
 
-    def min_max_hours(self, must_be_shuffled=0):
+    def min_max_hours(self, best_sol, must_be_shuffled=0):
         """Funkcja wyznacza pielęgniarkę z najmniejszą i największą liczbą godzin"""
-
+        # Sprawdzamy czy czasem rozwiązanie pierwotne nie jest najlepsze
+        # Jeżeli tak to zwracam je i program kończy się
+        hours = [nurse.number_of_hours for nurse in self.data.nurses]
+        if hours[:-1] == hours[1:]:
+            return best_sol
         # Parametr must_be_shuffled mówi nam o tym, że należy dokonać mieszania pielęgniarek
         # aby znaleźć inną o tekiej samej ilości godzin
         nurses_hours1 = [nurse.number_of_hours for nurse in self.data.nurses]
         if must_be_shuffled:
             random.shuffle(nurses_hours1)
-
         min_hours1 = min(nurses_hours1)
         min_hours_nurse1 = self.data.nurses[nurses_hours1.index(min_hours1)]
         max_hours1 = max(nurses_hours1)
@@ -331,7 +334,6 @@ class Solution:
                         nurse2 = i
                         break
             index += 1
-        print(nurse1.number_of_hours, nurse2.number_of_hours)
 
         return nurse1, nurse2
 
@@ -359,6 +361,8 @@ class Solution:
                                 and nurse_min.id not in [self.solution[i][j][1] for j in range(self.number_of_rooms)]:
                             if j.priority == 2 and nurse_min.status < 3:
                                 self.kara += 1
+                            elif j.priority == 2 and nurse_min.status >=3 and nurse_max.status < 3:
+                                self.kara -= 1
                             flag = 1
 
                             # Wsadzam pielęgniarkę min w 2 miejsca (12h)
@@ -379,6 +383,9 @@ class Solution:
                                 and nurse_min.id not in [self.solution[i][j][1] for j in range(self.number_of_rooms)]:
                             if j.priority == 2 and nurse_min.status < 3:
                                 self.kara += 1
+                            elif j.priority == 2 and nurse_min.status >=3 and nurse_max.status < 3:
+                                print("sdfgdfssfdgff")
+                                self.kara -= 1
                             flag = 1
                             self.solution[i][j.id][1] = nurse_min.id
                             self.solution[i + 1][j.id][1] = nurse_min.id
@@ -397,11 +404,11 @@ class Solution:
         # Funkcja zwraca indeksy, dla których zachodzi zmiana (lub None, None gdy nie ma zmiany)
         return i1, j1
 
-    def choose_method(self, method, tabu_list, must_be_shuffled = 0):
+    def choose_method(self, method, tabu_list, best_sol, must_be_shuffled = 0):
         """Funkcja wybiera metodę do przeprowadzenia zamiany"""
         #Pielęgniarki z min i max ilością godzin
         if method == 'Min_Max':
-            min_hours_nurse1, max_hours_nurse1 = self.min_max_hours(must_be_shuffled)
+            min_hours_nurse1, max_hours_nurse1 = self.min_max_hours(best_sol, must_be_shuffled)
             i1, j1 = self.nurses_swap(min_hours_nurse1, max_hours_nurse1, tabu_list)
         #Randomowe pielęgniarki
         elif method == 'Random':
@@ -412,36 +419,35 @@ class Solution:
             i1, j1 = self.nurses_swap(min_hours_nurse1, max_hours_nurse1, tabu_list)
         return i1, j1
 
-    def correction(self, method = 'Min_Max'):
+    def data_for_chart_update(self, best_sol, tabu_list):
+        """Funkcja aktualizuje dane do wykresów"""
+        self.data_for_chart.append(self.value_of_solution())
+        self.best_solutions.append(best_sol.value_of_solution())
+        self.tabu_list_for_chart.append(len(tabu_list))
+
+    def correction(self, method = 'Min_Max', max_iterations = 100):
         """Funkcja tworzy i zwraca najlepsze rozwiązanie"""
         flag = 0
+        iteration = 0
         iteration1 = 0
         iteration2 = 0
         tabu_list = []
 
         # Tworzymy kopię aby następnie móc przechowywyać w niej najlepsze rozwiązanie
         best_sol = copy.deepcopy(self)
-        self.data_for_chart.append(self.value_of_solution())
-        self.best_solutions.append(best_sol.value_of_solution())
-        self.tabu_list_for_chart.append(0)
 
-        # Sprawdzamy czy czasem rozwiązanie pierwotne nie jest najlepsze
-        # Jeżeli tak to zwracam je i program kończy się
-        hours = [nurse.number_of_hours for nurse in self.data.nurses]
-        if hours[:-1] == hours[1:]:
-            return best_sol
+        self.data_for_chart_update(best_sol, tabu_list)
 
         # Wyliczam pielęgniarki do zamiany i zamieniam je
-        i1, j1 = self.choose_method(method, tabu_list)
-
+        i1, j1 = self.choose_method(method, tabu_list, best_sol)
 
         # Jeżeli zwrócone indeksy = None (czyli nie zaszła zamiana -
         # sprawdzamy iteracja max aby się nie zapętlić
         # Gdy przekroczy iteracje i nie znajdzie odpowiednich pielęgniarek to zwracamy bieżące rozwiązanie
         while j1 is None:
             iteration1 += 1
-            i1, j1 = self.choose_method(method, tabu_list, 1)
-            if iteration1 > 10:
+            i1, j1 = self.choose_method(method, tabu_list, best_sol, 1)
+            if iteration1 >= max_iterations:
                 return best_sol
 
         # Jeżeli j1 != None (była zmiana) dodajemy indeksy do listy tabu
@@ -450,6 +456,7 @@ class Solution:
 
         # Wykonujemy zamiany aż do momentu gdy 10 razy pod rząd nie będzie zachodzić poprawa
         while 1:
+            iteration += 1
             # zapisujemy poprzednie indeksy
             # Sprawdzamy czy aktualne indeksy znajdują się w tabu liście i usuwamy je
             # - żeby nie było zdublowań - jeżeli indeksy mają być na stałe w liście to zostaną dodane później
@@ -460,14 +467,14 @@ class Solution:
             # Obiczam funkcje celu poprzedniego rozwiązania
             # Indeksy zamian
             value_of_solution_before = self.value_of_solution()
-            i1, j1 = self.choose_method(method, tabu_list)
+            i1, j1 = self.choose_method(method, tabu_list, best_sol)
 
 
             # Tutaj podobnie jak poprzednio
             while j1 is None:
                 iteration2 += 1
-                i1, j1 = self.choose_method(method, tabu_list, 1)
-                if iteration2 > 10:
+                i1, j1 = self.choose_method(method, tabu_list, best_sol, 1)
+                if iteration2 >= max_iterations:
                     return best_sol
 
             # Funkcja celu po zamianie
@@ -487,11 +494,13 @@ class Solution:
                 flag += 1
             else:
                 tabu_list.append([i1, j1.id])
-            self.data_for_chart.append(self.value_of_solution())
-            self.best_solutions.append(best_sol.value_of_solution())
-            self.tabu_list_for_chart.append(len(tabu_list))
+
+            self.data_for_chart_update(best_sol, tabu_list)
+
             # Jeżeli 10 razy nasze rozwiązanie będzie gorsze od poprzedniego to zwracamy rozwiązanie
             if flag > 10:
+                pass
+            if iteration >= max_iterations:
                 return best_sol
 
 
