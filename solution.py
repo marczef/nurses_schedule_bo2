@@ -15,6 +15,17 @@ def is_night_shift(shift):
 def is_day_shift(shift):
     return shift % 4 == 1 or shift % 4 == 0
 
+def min_number_of_nurses(number_of_rooms):
+    if number_of_rooms%2 == 0:
+        rooms_priority_1 = number_of_rooms/2
+    else:
+        rooms_priority_1 = (number_of_rooms+1)/2
+    rooms_priority_2 = number_of_rooms - rooms_priority_1
+
+    nurses_needed_in_one_shift = rooms_priority_1 + rooms_priority_2*2
+
+    return 3*nurses_needed_in_one_shift
+
 
 class Solution:
     def __init__(self, year_, month_, number_of_nurses_, number_of_rooms_):
@@ -32,8 +43,7 @@ class Solution:
         self.kara = 0
         # powyżej base_work_hours naliczają się nadgodziny
         self.base_work_hours = 5*7*4 + (self.size_of_month - 4*7)*7  # - holidays*7
-        # minimalna ilość pielęgniarek
-        min_number_of_nurses = self.min_number_of_nurses_()
+
 
         self.data_for_chart = []
         self.best_solutions = []
@@ -92,13 +102,6 @@ class Solution:
         ax2.set_ylabel('Tabu list length')
         return fig
 
-    def min_number_of_nurses_(self):
-        needed_nurses_per_shift = 0
-        for room in self.data.rooms:
-            needed_nurses_per_shift += room.needed_number_of_nurses
-
-        # aby minimalnie wypełnić grafik (12 h zmian) wystarczą 3 pule pielęgniarek wystarczających na jeden dzień
-        return 3 * needed_nurses_per_shift
 
     def has_nurse_overall_hours(self, nurse):
         overall_hours = nurse.number_of_hours - self.base_work_hours
