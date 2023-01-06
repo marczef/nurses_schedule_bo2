@@ -34,12 +34,16 @@ class Data:
         self.next_id_room += 1
 
     def print_nurses(self):
+        nurses = ""
         for i in self.nurses:
-            print("Nurse: ", i.id, ", status: ", i.status, ", worked hours: ", i.number_of_hours, ', salary: ', i.salary)
+            nurses += "Nurse: " + str(i.id) + ", status: " + str(i.status) + ", worked hours: " + str(i.number_of_hours) + ', salary: ' +  str(i.salary) + "\n"
+        return nurses
 
     def print_room(self):
+        rooms = ""
         for i in self.rooms:
-            print("Room: ", i.id, ", priority: ", i.priority)
+            rooms += "Room: " + str(i.id) + ", priority: " + str(i.priority) + "\n"
+        return rooms
 
 class Nurse:
 

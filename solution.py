@@ -74,8 +74,8 @@ class Solution:
             print(best_sol.value_of_solution())
             best_sol.write_schedule()
 
-            fig = self.chart()
-            plt.show()
+            # fig = self.chart()
+            # plt.show()
 
 
     def check_solution(self):
@@ -83,7 +83,7 @@ class Solution:
             return True
 
     def chart(self):
-        print(self.best_solutions)
+        #print(self.best_solutions)
         x = np.arange(len(self.data_for_chart))
         y1 = self.data_for_chart
         y2 = self.best_solutions
