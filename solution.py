@@ -24,7 +24,7 @@ def min_number_of_nurses(number_of_rooms):
 
     nurses_needed_in_one_shift = rooms_priority_1 + rooms_priority_2*2
 
-    return 3*nurses_needed_in_one_shift
+    return 4*nurses_needed_in_one_shift
 
 
 class Solution:
