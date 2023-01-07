@@ -308,6 +308,14 @@ class Ui_MainWindow(object):
         except:
             self.scroll_rooms.setText("")
 
+    def try_to_reset_graph(self):
+
+        self.tabWidget.removeTab(1)
+        self.tab_2 = QtWidgets.QWidget()
+        self.tab_2.setObjectName("tab_2")
+        self.tabWidget.insertTab(1,self.tab_2, "")
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), "Graph")
+
     def resetf(self):
         self.rooms.setText("")
         self.estimated_number_of_nurses.setText("")
@@ -325,6 +333,7 @@ class Ui_MainWindow(object):
         self.data = None
         self.print_nursesf()
         self.print_roomsf()
+        self.try_to_reset_graph()
 
 def app():
 
