@@ -130,6 +130,32 @@ class Ui_MainWindow(object):
         self.reset = QtWidgets.QPushButton(self.tab_1)
         self.reset.setGeometry(QtCore.QRect(900, 460, 93, 28))
         self.reset.setObjectName("reset")
+        self.info_config = QtWidgets.QLabel(self.tab_1)
+        self.info_config.setGeometry(QtCore.QRect(10, 290, 181, 31))
+        self.info_config.setObjectName("info_config")
+        self.inf_method = QtWidgets.QLabel(self.tab_1)
+        self.inf_method.setGeometry(QtCore.QRect(10, 350, 181, 31))
+        self.inf_method.setObjectName("inf_method")
+        self.info_iterations = QtWidgets.QLabel(self.tab_1)
+        self.info_iterations.setGeometry(QtCore.QRect(360, 350, 181, 31))
+        self.info_iterations.setObjectName("info_iterations")
+        self.info_criteria = QtWidgets.QLabel(self.tab_1)
+        self.info_criteria.setGeometry(QtCore.QRect(720, 350, 181, 31))
+        self.info_criteria.setObjectName("info_criteria")
+        self.method_input = QtWidgets.QComboBox(self.tab_1)
+        self.method_input.setGeometry(QtCore.QRect(10, 390, 141, 31))
+        self.method_input.setObjectName("method_input")
+        self.method_input.addItem("")
+        self.method_input.addItem("")
+        self.method_input.addItem("")
+        self.aspiration_criteria_input = QtWidgets.QComboBox(self.tab_1)
+        self.aspiration_criteria_input.setGeometry(QtCore.QRect(720, 390, 141, 31))
+        self.aspiration_criteria_input.setObjectName("aspiration_criteria_input")
+        self.aspiration_criteria_input.addItem("")
+        self.aspiration_criteria_input.addItem("")
+        self.iterations_input = QtWidgets.QLineEdit(self.tab_1)
+        self.iterations_input.setGeometry(QtCore.QRect(360, 390, 121, 31))
+        self.iterations_input.setObjectName("iterations_input")
         self.tabWidget.addTab(self.tab_1, "")
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab_2")
@@ -176,6 +202,8 @@ class Ui_MainWindow(object):
         self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+        self.iterations_input.setText("100")
+
         self.nurses_ = None
         self.rooms_ = None
         self.year_ = None
@@ -188,6 +216,9 @@ class Ui_MainWindow(object):
         self.submit.clicked.connect(self.show_table)
         self.percent_of_3nurses.valueChanged.connect(self.value_change_slider)
         self.reset.clicked.connect(self.resetf)
+        self.method_input.activated.connect(self.get_method)
+        self.aspiration_criteria_input.activated.connect(self.get_aspiration_criteria)
+        self.iterations_input
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -203,6 +234,15 @@ class Ui_MainWindow(object):
         self.label_year.setText(_translate("MainWindow", "Select year"))
         self.submit.setText(_translate("MainWindow", "Submit"))
         self.reset.setText(_translate("MainWindow", "RESET"))
+        self.info_config.setText(_translate("MainWindow", "Configuration of algorithm"))
+        self.inf_method.setText(_translate("MainWindow", "Method"))
+        self.info_iterations.setText(_translate("MainWindow", "Max iterations"))
+        self.info_criteria.setText(_translate("MainWindow", "Aspiration criteria"))
+        self.method_input.setItemText(0, _translate("MainWindow", "Min_Max"))
+        self.method_input.setItemText(1, _translate("MainWindow", "Random"))
+        self.method_input.setItemText(2, _translate("MainWindow", "Priority"))
+        self.aspiration_criteria_input.setItemText(0, _translate("MainWindow", "True"))
+        self.aspiration_criteria_input.setItemText(1, _translate("MainWindow", "False"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_1), _translate("MainWindow", "Menu"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Graph"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Nurses"))
@@ -232,12 +272,15 @@ class Ui_MainWindow(object):
         self.year_ = self.year.text()
 
     def show_table(self):
+        self.get_method()
+        self.get_iterations()
+        self.get_aspiration_criteria()
+
         if self.nurses_ == None or self.rooms_ == None or self.year_ == None or self.month_ == None:
             pass
         else:
             try:
-                print(self.nurses_, " ", self.rooms_, " ", self.year_, " ", self.month_)
-                self.data = Solution(int(self.year_), int(self.month_), self.nurses_, self.rooms_)
+                self.data = Solution(int(self.year_), int(self.month_), self.nurses_, self.rooms_, int(self.percent_of_3nurses.value()), self.method, self.iterations, self.aspiration_criteria)
 
                 self.tableWidget.setColumnCount(self.data.best_sol.solution.shape[0])
                 self.tableWidget.setRowCount(self.data.best_sol.solution.shape[1]+1)
@@ -336,6 +379,25 @@ class Ui_MainWindow(object):
         self.print_nursesf()
         self.print_roomsf()
         self.try_to_reset_graph()
+        self.iterations = None
+        self.iterations_input.setText("100")
+        self.aspiration_criteria_input.setCurrentIndex(0)
+        self.method_input.setCurrentIndex(0)
+
+    def get_method(self):
+        self.method = self.method_input.currentText()
+        print(self.method)
+
+    def get_aspiration_criteria(self):
+        self.aspiration_criteria = self.aspiration_criteria_input.currentText()
+        print(self.aspiration_criteria)
+
+    def get_iterations(self):
+        try:
+            self.iterations = int(self.iterations_input.text())
+        except:
+            self.iterations = 100
+            self.iterations_input.setText("100")
 
 def app():
 

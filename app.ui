@@ -361,6 +361,113 @@
        <string>RESET</string>
       </property>
      </widget>
+     <widget class="QLabel" name="info_config">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>290</y>
+        <width>181</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Configuration of algorithm</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="inf_method">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>350</y>
+        <width>181</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Method</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="info_iterations">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>350</y>
+        <width>181</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Max iterations</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="info_criteria">
+      <property name="geometry">
+       <rect>
+        <x>720</x>
+        <y>350</y>
+        <width>181</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Aspiration criteria</string>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="method_input">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>390</y>
+        <width>141</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <item>
+       <property name="text">
+        <string>Min_max</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Random</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Priority</string>
+       </property>
+      </item>
+     </widget>
+     <widget class="QComboBox" name="aspiration_criteria_input">
+      <property name="geometry">
+       <rect>
+        <x>720</x>
+        <y>390</y>
+        <width>141</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <item>
+       <property name="text">
+        <string>True</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>False</string>
+       </property>
+      </item>
+     </widget>
+     <widget class="QLineEdit" name="iterations_input">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>390</y>
+        <width>121</width>
+        <height>31</height>
+       </rect>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">

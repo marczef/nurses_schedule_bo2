@@ -28,7 +28,10 @@ def min_number_of_nurses(number_of_rooms):
 
 
 class Solution:
-    def __init__(self, year_, month_, number_of_nurses_, number_of_rooms_, percent_higher_status_):
+    def __init__(self, year_, month_, number_of_nurses_, number_of_rooms_, percent_higher_status_, method_, max_iterations_, aspiration_criteria_):
+        self.method = method_
+        self.max_iterations = max_iterations_
+        self.aspiration_criteria = aspiration_criteria_
         self.number_of_rooms = number_of_rooms_
         self.number_of_nurses = number_of_nurses_
         self.month = month_
@@ -67,7 +70,7 @@ class Solution:
             print(self.value_of_solution)
         else:
             # Najlepsze rozwiązanie
-            self.best_sol = self.correction()
+            self.best_sol = self.correction(self.method, self.max_iterations, self.aspiration_criteria)
             self.nurses_salary(self.best_sol)
             self.best_sol.data.print_nurses()
             self.best_sol.data.print_room()
