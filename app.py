@@ -17,6 +17,9 @@ from main import *
 import sys
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as canvas
 from matplotlib.figure import Figure
+import solution
+from math import inf
+import numpy as np
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -208,7 +211,7 @@ class Ui_MainWindow(object):
     def save_rooms(self):
         try:
             self.rooms_ = int(self.rooms.text())
-            self.estimated_number_of_nurses.setText("The minimum required number of nurses is: " + str(int(min_number_of_nurses(self.rooms_))))
+            self.estimated_number_of_nurses.setText("The minimum required number of nurses is: " + str(int(solution.min_number_of_nurses(self.rooms_))))
             self.error_room.setText("")
         except:
             self.error_room.setText("ERROR")
