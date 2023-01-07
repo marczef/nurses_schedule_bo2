@@ -508,7 +508,7 @@ class Solution:
 
             # Jeżeli 10 razy nasze rozwiązanie będzie gorsze od poprzedniego to zwracamy rozwiązanie
             if flag > 10:
-                if aspiration_criteria:
+                if aspiration_criteria == 'True':
                     tabu_list.pop(0)
             if iteration >= max_iterations:
                 return best_sol
