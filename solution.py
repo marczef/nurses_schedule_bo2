@@ -433,8 +433,9 @@ class Solution:
         self.best_solutions.append(best_sol.value_of_solution())
         self.tabu_list_for_chart.append(len(tabu_list))
 
-    def correction(self, method = 'Min_Max', max_iterations = 100, aspiration_criteria = True):
+    def correction(self, method, max_iterations, aspiration_criteria):
         """Funkcja tworzy i zwraca najlepsze rozwiązanie"""
+        print(method, " ", max_iterations, " ", aspiration_criteria)
         flag = 0
         iteration = 0
         iteration1 = 0
