@@ -2,31 +2,40 @@ from dataclasses import dataclass
 import numpy as np
 import random
 from math import inf
+import math
 import copy
 
 
 
 class Data:
 
-    def __init__(self, number_of_nurses_, number_of_rooms_):
+    def __init__(self, number_of_nurses_, number_of_rooms_, percent_higher_status_):
         self.number_of_rooms = number_of_rooms_
         self.number_of_nurses = number_of_nurses_
+        self.percent_higher_status = percent_higher_status_
         self.next_id_nurse = 0
         self.next_id_room = 0
         self.nurses = []
         self.rooms = []
         self.wage = random.randint(20, 25)
 
+        number_of_nurses_with_lower_status = self.number_of_nurses - math.ceil((self.number_of_nurses * self.percent_higher_status) / 100)
+
         flag = -1
 
         for i in range(self.number_of_nurses):
-            self.add_nurse()
+            if i < number_of_nurses_with_lower_status:
+                status = random.randint(1, 2)
+                self.add_nurse(status)
+            else:
+                status = random.randint(3, 5)
+                self.add_nurse(status)
         for i in range(self.number_of_rooms):
             flag = flag * (-1)
             self.add_room(flag)
 
-    def add_nurse(self):
-        self.nurses.append(Nurse(self.next_id_nurse))
+    def add_nurse(self, status):
+        self.nurses.append(Nurse(self.next_id_nurse, status))
         self.next_id_nurse += 1
 
     def add_room(self, flag):
@@ -47,8 +56,8 @@ class Data:
 
 class Nurse:
 
-    def __init__(self, next_id):
-        self.status = random.randint(1,5)
+    def __init__(self, next_id, status_):
+        self.status = status_
         self.id = next_id
         self.number_of_hours = 0
         self.salary = 0

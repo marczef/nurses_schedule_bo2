@@ -28,22 +28,22 @@ def min_number_of_nurses(number_of_rooms):
 
 
 class Solution:
-    def __init__(self, year_, month_, number_of_nurses_, number_of_rooms_):
+    def __init__(self, year_, month_, number_of_nurses_, number_of_rooms_, percent_higher_status_):
         self.number_of_rooms = number_of_rooms_
         self.number_of_nurses = number_of_nurses_
         self.month = month_
         self.year = year_
+        self.percent_higher_status = percent_higher_status_
         # first_day_of_month mówi, jaki dzień tygodnia wypada w pierwszy dzień miesiąca (0 - pon, 6 - ndz)
         # size_of_month - ile dni w miesiącu
         (self.first_day_of_week_in_month, self.size_of_month) = monthrange(self.year, self.month)
-        self.data = Data(self.number_of_nurses, self.number_of_rooms)
+        self.data = Data(self.number_of_nurses, self.number_of_rooms, self.percent_higher_status)
         self.solution = np.ndarray(shape=(4 * self.size_of_month, self.data.number_of_rooms, 2), dtype=float)
         self.data.nurses.sort(key=lambda x: 0 if (x.status < 3) else 1)
         self.value = 0
         self.kara = 0
         # powyżej base_work_hours naliczają się nadgodziny
         self.base_work_hours = 5*7*4 + (self.size_of_month - 4*7)*7  # - holidays*7
-
 
         self.data_for_chart = []
         self.best_solutions = []
