@@ -428,7 +428,7 @@ class Solution:
         self.best_solutions.append(best_sol.value_of_solution())
         self.tabu_list_for_chart.append(len(tabu_list))
 
-    def correction(self, method = 'Min_Max', max_iterations = 100):
+    def correction(self, method = 'Min_Max', max_iterations = 100, aspiration_criteria = True):
         """Funkcja tworzy i zwraca najlepsze rozwiązanie"""
         flag = 0
         iteration = 0
@@ -502,7 +502,8 @@ class Solution:
 
             # Jeżeli 10 razy nasze rozwiązanie będzie gorsze od poprzedniego to zwracamy rozwiązanie
             if flag > 10:
-                pass
+                if aspiration_criteria:
+                    tabu_list.pop(0)
             if iteration >= max_iterations:
                 return best_sol
 
