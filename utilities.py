@@ -42,7 +42,7 @@ class Data:
     def print_room(self):
         rooms = ""
         for i in self.rooms:
-            rooms += "Room: " + str(i.id) + ", priority: " + str(i.priority) + "\n"
+            rooms += "Room: " + str(i.id) + ", priority: " + str(i.priority)  + "\n"
         return rooms
 
 class Nurse:

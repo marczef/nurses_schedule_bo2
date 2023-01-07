@@ -67,12 +67,12 @@ class Solution:
             print(self.value_of_solution)
         else:
             # Najlepsze rozwiązanie
-            best_sol = self.correction()
-            self.nurses_salary(best_sol)
-            best_sol.data.print_nurses()
-            best_sol.data.print_room()
-            print(best_sol.value_of_solution())
-            best_sol.write_schedule()
+            self.best_sol = self.correction()
+            self.nurses_salary(self.best_sol)
+            self.best_sol.data.print_nurses()
+            self.best_sol.data.print_room()
+            print(self.best_sol.value_of_solution())
+            self.best_sol.write_schedule()
 
             # fig = self.chart()
             # plt.show()

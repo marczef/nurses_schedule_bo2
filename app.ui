@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_1">
      <attribute name="title">
@@ -335,6 +335,32 @@
        </item>
       </layout>
      </widget>
+     <widget class="QLabel" name="error_solution">
+      <property name="geometry">
+       <rect>
+        <x>130</x>
+        <y>450</y>
+        <width>611</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="reset">
+      <property name="geometry">
+       <rect>
+        <x>900</x>
+        <y>460</y>
+        <width>93</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>RESET</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
@@ -407,7 +433,7 @@
         <item>
          <widget class="QLabel" name="scroll_rooms">
           <property name="text">
-           <string>TextLabel</string>
+           <string/>
           </property>
          </widget>
         </item>

@@ -15,7 +15,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 from main import *
 import sys
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as canvas
 from matplotlib.figure import Figure
 
 class Ui_MainWindow(object):
@@ -79,6 +79,7 @@ class Ui_MainWindow(object):
         self.year.setGeometry(QtCore.QRect(610, 150, 121, 31))
         self.year.setMinimum(1970)
         self.year.setMaximum(2023)
+        self.year.setValue(2023)
         self.year.setObjectName("year")
         self.select_month = QtWidgets.QPushButton(self.tab_1)
         self.select_month.setGeometry(QtCore.QRect(738, 57, 93, 41))
@@ -119,6 +120,13 @@ class Ui_MainWindow(object):
         self.tableWidget.setColumnCount(0)
         self.tableWidget.setRowCount(0)
         self.verticalLayout.addWidget(self.tableWidget)
+        self.error_solution = QtWidgets.QLabel(self.tab_1)
+        self.error_solution.setGeometry(QtCore.QRect(130, 450, 611, 31))
+        self.error_solution.setText("")
+        self.error_solution.setObjectName("error_solution")
+        self.reset = QtWidgets.QPushButton(self.tab_1)
+        self.reset.setGeometry(QtCore.QRect(900, 460, 93, 28))
+        self.reset.setObjectName("reset")
         self.tabWidget.addTab(self.tab_1, "")
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab_2")
@@ -176,6 +184,7 @@ class Ui_MainWindow(object):
         self.select_month.clicked.connect(self.save_month)
         self.submit.clicked.connect(self.show_table)
         self.percent_of_3nurses.valueChanged.connect(self.value_change_slider)
+        self.reset.clicked.connect(self.resetf)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -190,6 +199,7 @@ class Ui_MainWindow(object):
         self.select_rooms.setText(_translate("MainWindow", "Select rooms"))
         self.label_year.setText(_translate("MainWindow", "Select year"))
         self.submit.setText(_translate("MainWindow", "Submit"))
+        self.reset.setText(_translate("MainWindow", "RESET"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_1), _translate("MainWindow", "Menu"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Graph"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Nurses"))
@@ -222,35 +232,46 @@ class Ui_MainWindow(object):
         if self.nurses_ == None or self.rooms_ == None or self.year_ == None or self.month_ == None:
             pass
         else:
-            print(self.nurses_, " ", self.rooms_, " ", self.year_, " ", self.month_)
-            self.data = Solution(int(self.year_), int(self.month_), self.nurses_, self.rooms_)
+            try:
+                print(self.nurses_, " ", self.rooms_, " ", self.year_, " ", self.month_)
+                self.data = Solution(int(self.year_), int(self.month_), self.nurses_, self.rooms_)
 
-            self.tableWidget.setColumnCount(self.data.solution.shape[0])
-            self.tableWidget.setRowCount(self.data.solution.shape[1]+1)
+                self.tableWidget.setColumnCount(self.data.best_sol.solution.shape[0])
+                self.tableWidget.setRowCount(self.data.best_sol.solution.shape[1]+1)
 
-            counter_days = 1
+                counter_days = 1
 
-            for i in range(self.data.solution.shape[0]):
-                table = QtWidgets.QTableWidgetItem("Day " + str(counter_days))
-                table.setTextAlignment(4)
-                self.tableWidget.setItem(0, i, table)
-                for j in range(self.data.solution.shape[1]):
-                    self.tableWidget.setItem(j+1, i, QtWidgets.QTableWidgetItem(str(self.data.solution[i][j])))
+                for i in range(self.data.best_sol.solution.shape[0]):
+                    table = QtWidgets.QTableWidgetItem("Day " + str(counter_days))
+                    table.setTextAlignment(4)
+                    self.tableWidget.setItem(0, i, table)
+                    for j in range(self.data.best_sol.solution.shape[1]):
+                        self.tableWidget.setItem(j+1, i, QtWidgets.QTableWidgetItem(str(self.data.best_sol.solution[i][j])))
 
-                if i % 4 == 0:
-                    self.tableWidget.setSpan(0, i, 1, 4)
-                    counter_days += 1
+                    if i % 4 == 0:
+                        self.tableWidget.setSpan(0, i, 1, 4)
+                        counter_days += 1
 
-            self.try_to_show_graph()
-            self.print_nursesf()
-            self.print_roomsf()
+                self.try_to_show_graph()
+                self.print_nursesf()
+                self.print_roomsf()
+
+                if self.data.value_of_solution() == inf:
+                    self.error_solution.setText("Solution couldn't be found")
+                    self.error_solution.setStyleSheet("color: red")
+
+                else:
+                    self.error_solution.setText("")
+            except:
+                self.error_solution.setText("Solution couldn't be found")
+                self.error_solution.setStyleSheet("color: red")
 
     def value_change_slider(self):
         self.value_slider.setText(str(self.percent_of_3nurses.value()))
 
     def try_to_show_graph(self):
         try:
-            layout = QtWidgets.QVBoxLayout(self.tab_2)
+            self.layout = QtWidgets.QVBoxLayout(self.tab_2)
             x = np.arange(len(self.data.data_for_chart))
             y1 = self.data.data_for_chart
             y2 = self.data.best_solutions
@@ -268,29 +289,42 @@ class Ui_MainWindow(object):
             ax2.set_xlabel('Iterations')
             ax2.set_ylabel('Tabu list length')
             self.canvas = FigureCanvas(self.figure)
-            layout.addWidget(self.canvas)
+            self.layout.addWidget(self.canvas)
             self.canvas.draw()
-
         except:
-            layout = QtWidgets.QVBoxLayout(self.tab_2)
-            self.figure = plt.figure(figsize=(10, 5))
-            self.canvas = FigureCanvas(self.figure)
-            layout.addWidget(self.canvas)
-            self.canvas.draw()
+            pass
 
     def print_nursesf(self):
         try:
-            self.print_nurses_ = self.data.data.print_nurses()
+            self.print_nurses_ = self.data.best_sol.data.print_nurses()
             self.scroll_nurses.setText(self.print_nurses_)
         except:
-            pass
+            self.scroll_nurses.setText("")
 
     def print_roomsf(self):
         try:
-            self.print_rooms_ = self.data.data.print_room()
+            self.print_rooms_ = self.data.best_sol.data.print_room()
             self.scroll_rooms.setText(self.print_rooms_)
         except:
-            pass
+            self.scroll_rooms.setText("")
+
+    def resetf(self):
+        self.rooms.setText("")
+        self.estimated_number_of_nurses.setText("")
+        self.error_room.setText("")
+        self.rooms_ = None
+        self.nurses.setText("")
+        self.nurses_ = None
+        self.error_nurse.setText("")
+        self.month.setValue(1)
+        self.year.setValue(2023)
+
+        while self.tableWidget.rowCount() > 0:
+            self.tableWidget.removeRow(0)
+
+        self.data = None
+        self.print_nursesf()
+        self.print_roomsf()
 
 def app():
 
@@ -301,5 +335,3 @@ def app():
     MainWindow.show()
     sys.exit(app.exec_())
 
-
-    #TODO: reset, info nie_udalo_sie
