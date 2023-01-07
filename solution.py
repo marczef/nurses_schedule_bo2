@@ -135,6 +135,7 @@ class Solution:
                 temp_hours_nurses[nurse1.id] += 6
             else:
                 self.salary_for_each_day(day_of_week, shift, nurse1)
+                temp_hours_nurses[nurse1.id] += 6
         else:
             self.salary_for_each_day(day_of_week, shift, nurse1)
 
@@ -149,6 +150,7 @@ class Solution:
                     temp_hours_nurses[nurse2.id] += 6
                 else:
                     self.salary_for_each_day(day_of_week, shift, nurse2)
+                    temp_hours_nurses[nurse2.id] += 6
             else:
                 self.salary_for_each_day(day_of_week, shift, nurse2)
 
@@ -159,8 +161,8 @@ class Solution:
         for shift in range(0, best_sol.solution.shape[0]):
             if shift % 4 == 0:
                 day_of_week += 1
-                for nurses in best_sol.solution[shift][:]:
-                    self.salary_depend_on_overall(day_of_week, nurses, shift, best_sol, temp_hours_nurses)
+            for nurses in best_sol.solution[shift][:]:
+                self.salary_depend_on_overall(day_of_week, nurses, shift, best_sol, temp_hours_nurses)
             if day_of_week == 6:
                 day_of_week = 0
 
