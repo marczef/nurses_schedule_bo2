@@ -309,7 +309,6 @@ class Ui_MainWindow(object):
             self.scroll_rooms.setText("")
 
     def try_to_reset_graph(self):
-
         self.tabWidget.removeTab(1)
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab_2")
