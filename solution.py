@@ -28,19 +28,28 @@ def min_number_of_nurses(number_of_rooms):
 
 
 class Solution:
-    def __init__(self, year_, month_, number_of_nurses_, number_of_rooms_, percent_higher_status_, method_, max_iterations_, aspiration_criteria_):
+    def __init__(self, year_, month_, number_of_nurses_, number_of_rooms_, percent_higher_status_, method_,
+                 max_iterations_, aspiration_criteria_, import_file = False, file_name = None):
         self.method = method_
         self.max_iterations = max_iterations_
         self.aspiration_criteria = aspiration_criteria_
-        self.number_of_rooms = number_of_rooms_
-        self.number_of_nurses = number_of_nurses_
         self.month = month_
         self.year = year_
         self.percent_higher_status = percent_higher_status_
         # first_day_of_month mówi, jaki dzień tygodnia wypada w pierwszy dzień miesiąca (0 - pon, 6 - ndz)
         # size_of_month - ile dni w miesiącu
         (self.first_day_of_week_in_month, self.size_of_month) = monthrange(self.year, self.month)
-        self.data = Data(self.number_of_nurses, self.number_of_rooms, self.percent_higher_status)
+
+        if import_file == False:
+            self.number_of_rooms = number_of_rooms_
+            self.number_of_nurses = number_of_nurses_
+            self.data = Data(False, self.number_of_nurses, self.number_of_rooms, self.percent_higher_status)
+
+        else:
+            self.data = Data(True, None, None, None, file_name)
+            self.number_of_rooms = self.data.number_of_rooms
+            self.number_of_nurses = self.data.number_of_nurses
+
         self.solution = np.ndarray(shape=(4 * self.size_of_month, self.data.number_of_rooms, 2), dtype=float)
         self.data.nurses.sort(key=lambda x: 0 if (x.status < 3) else 1)
         self.value = 0
@@ -435,7 +444,6 @@ class Solution:
 
     def correction(self, method, max_iterations, aspiration_criteria):
         """Funkcja tworzy i zwraca najlepsze rozwiązanie"""
-        print(method, " ", max_iterations, " ", aspiration_criteria)
         flag = 0
         iteration = 0
         iteration1 = 0

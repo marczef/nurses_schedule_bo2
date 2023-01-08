@@ -4,35 +4,54 @@ import random
 from math import inf
 import math
 import copy
+import pandas as pd
 
 
 
 class Data:
 
-    def __init__(self, number_of_nurses_, number_of_rooms_, percent_higher_status_):
-        self.number_of_rooms = number_of_rooms_
-        self.number_of_nurses = number_of_nurses_
-        self.percent_higher_status = percent_higher_status_
-        self.next_id_nurse = 0
-        self.next_id_room = 0
-        self.nurses = []
-        self.rooms = []
-        self.wage = random.randint(20, 25)
+    def __init__(self, if_import, number_of_nurses_=None, number_of_rooms_=None, percent_higher_status_=None, file_name = None):
+        if not if_import:
+            self.number_of_rooms = number_of_rooms_ #
+            self.number_of_nurses = number_of_nurses_ #
+            self.percent_higher_status = percent_higher_status_
+            self.next_id_nurse = 0
+            self.next_id_room = 0
+            self.nurses = [] #
+            self.rooms = [] #
+            self.wage = random.randint(20, 25) #
 
-        number_of_nurses_with_lower_status = self.number_of_nurses - math.ceil((self.number_of_nurses * self.percent_higher_status) / 100)
+            number_of_nurses_with_lower_status = self.number_of_nurses - math.ceil((self.number_of_nurses * self.percent_higher_status) / 100)
 
-        flag = -1
+            flag = -1
 
-        for i in range(self.number_of_nurses):
-            if i < number_of_nurses_with_lower_status:
-                status = random.randint(1, 2)
-                self.add_nurse(status)
-            else:
-                status = random.randint(3, 5)
-                self.add_nurse(status)
-        for i in range(self.number_of_rooms):
-            flag = flag * (-1)
-            self.add_room(flag)
+            for i in range(self.number_of_nurses):
+                if i < number_of_nurses_with_lower_status:
+                    status = random.randint(1, 2)
+                    self.add_nurse(status)
+                else:
+                    status = random.randint(3, 5)
+                    self.add_nurse(status)
+            for i in range(self.number_of_rooms):
+                flag = flag * (-1)
+                self.add_room(flag)
+        else:
+            file = pd.read_excel("test_files/{}".format(file_name), index_col=None, na_values=['NaN'])
+            room_ids = file["room_id"].dropna()
+            room_priorities = file["room_priority"].dropna()
+            self.number_of_rooms = len(room_ids)
+            self.number_of_nurses = len(file["nurse_id"])
+            self.next_id_nurse = 0
+            self.next_id_room = 0
+            self.nurses = []
+            self.rooms = []
+            self.wage = random.randint(20, 25)
+
+            for i in range(len(file["nurse_id"])):
+                self.add_nurse(file["nurse_status"][i])
+
+            for i in range(len(room_ids)):
+                self.add_room(room_priorities[i])
 
     def add_nurse(self, status):
         self.nurses.append(Nurse(self.next_id_nurse, status))

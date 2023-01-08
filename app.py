@@ -156,6 +156,20 @@ class Ui_MainWindow(object):
         self.iterations_input = QtWidgets.QLineEdit(self.tab_1)
         self.iterations_input.setGeometry(QtCore.QRect(360, 390, 121, 31))
         self.iterations_input.setObjectName("iterations_input")
+        self.choose_file_name = QtWidgets.QComboBox(self.tab_1)
+        self.choose_file_name.setGeometry(QtCore.QRect(1020, 60, 161, 31))
+        self.choose_file_name.setObjectName("choose_file_name")
+        self.choose_file_name.addItem("")
+        self.choose_file_name.addItem("")
+        self.choose_file_name.addItem("")
+        self.choose_file_name.addItem("")
+        self.label_config_file = QtWidgets.QLabel(self.tab_1)
+        self.label_config_file.setGeometry(QtCore.QRect(1020, 20, 201, 31))
+        self.label_config_file.setObjectName("label_config_file")
+        self.value = QtWidgets.QLabel(self.tab_1)
+        self.value.setGeometry(QtCore.QRect(550, 450, 321, 31))
+        self.value.setText("")
+        self.value.setObjectName("value")
         self.tabWidget.addTab(self.tab_1, "")
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab_2")
@@ -208,6 +222,7 @@ class Ui_MainWindow(object):
         self.rooms_ = None
         self.year_ = None
         self.month_ = None
+        self.data = None
 
         self.select_rooms.clicked.connect(self.save_rooms)
         self.select_nurses.clicked.connect(self.save_nurses)
@@ -218,7 +233,7 @@ class Ui_MainWindow(object):
         self.reset.clicked.connect(self.resetf)
         self.method_input.activated.connect(self.get_method)
         self.aspiration_criteria_input.activated.connect(self.get_aspiration_criteria)
-        self.iterations_input
+        self.choose_file_name.activated.connect(self.config_file)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -243,6 +258,11 @@ class Ui_MainWindow(object):
         self.method_input.setItemText(2, _translate("MainWindow", "Priority"))
         self.aspiration_criteria_input.setItemText(0, _translate("MainWindow", "True"))
         self.aspiration_criteria_input.setItemText(1, _translate("MainWindow", "False"))
+        self.choose_file_name.setItemText(0, _translate("MainWindow", "<- My own data"))
+        self.choose_file_name.setItemText(1, _translate("MainWindow", "test1.xlsx"))
+        self.choose_file_name.setItemText(2, _translate("MainWindow", "test2.xlsx"))
+        self.choose_file_name.setItemText(3, _translate("MainWindow", "test3.xlsx"))
+        self.label_config_file.setText(_translate("MainWindow", "(optional) Choose config file:"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_1), _translate("MainWindow", "Menu"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Graph"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Nurses"))
@@ -276,41 +296,14 @@ class Ui_MainWindow(object):
         self.get_iterations()
         self.get_aspiration_criteria()
 
-        if self.nurses_ == None or self.rooms_ == None or self.year_ == None or self.month_ == None:
+        if self.nurses_ is None or self.rooms_ is None or self.year_ is None or self.month_ is None or self.data is not None:
             pass
         else:
-            try:
-                self.data = Solution(int(self.year_), int(self.month_), self.nurses_, self.rooms_, int(self.percent_of_3nurses.value()), self.method, self.iterations, self.aspiration_criteria)
+            if self.choose_file_name.currentText() == "<- My own data":
+                self.submit_with_own_data()
+            else:
+                self.submit_with_test_file()
 
-                self.tableWidget.setColumnCount(self.data.best_sol.solution.shape[0])
-                self.tableWidget.setRowCount(self.data.best_sol.solution.shape[1]+1)
-
-                counter_days = 1
-
-                for i in range(self.data.best_sol.solution.shape[0]):
-                    table = QtWidgets.QTableWidgetItem("Day " + str(counter_days))
-                    table.setTextAlignment(4)
-                    self.tableWidget.setItem(0, i, table)
-                    for j in range(self.data.best_sol.solution.shape[1]):
-                        self.tableWidget.setItem(j+1, i, QtWidgets.QTableWidgetItem(str(self.data.best_sol.solution[i][j])))
-
-                    if i % 4 == 0:
-                        self.tableWidget.setSpan(0, i, 1, 4)
-                        counter_days += 1
-
-                self.try_to_show_graph()
-                self.print_nursesf()
-                self.print_roomsf()
-
-                if self.data.value_of_solution() == inf:
-                    self.error_solution.setText("Solution couldn't be found")
-                    self.error_solution.setStyleSheet("color: red")
-
-                else:
-                    self.error_solution.setText("")
-            except:
-                self.error_solution.setText("Solution couldn't be found")
-                self.error_solution.setStyleSheet("color: red")
 
     def value_change_slider(self):
         self.value_slider.setText(str(self.percent_of_3nurses.value()))
@@ -383,14 +376,14 @@ class Ui_MainWindow(object):
         self.iterations_input.setText("100")
         self.aspiration_criteria_input.setCurrentIndex(0)
         self.method_input.setCurrentIndex(0)
+        self.config_file()
+        self.value.setText("")
 
     def get_method(self):
         self.method = self.method_input.currentText()
-        print(self.method)
 
     def get_aspiration_criteria(self):
         self.aspiration_criteria = self.aspiration_criteria_input.currentText()
-        print(self.aspiration_criteria)
 
     def get_iterations(self):
         try:
@@ -398,6 +391,94 @@ class Ui_MainWindow(object):
         except:
             self.iterations = 100
             self.iterations_input.setText("100")
+
+    def submit_with_own_data(self):
+        try:
+            self.data = Solution(int(self.year_), int(self.month_), self.nurses_, self.rooms_,
+                                 int(self.percent_of_3nurses.value()), self.method, self.iterations,
+                                 self.aspiration_criteria)
+
+            self.tableWidget.setColumnCount(self.data.best_sol.solution.shape[0])
+            self.tableWidget.setRowCount(self.data.best_sol.solution.shape[1] + 1)
+
+            counter_days = 1
+
+            for i in range(self.data.best_sol.solution.shape[0]):
+                table = QtWidgets.QTableWidgetItem("Day " + str(counter_days))
+                table.setTextAlignment(4)
+                self.tableWidget.setItem(0, i, table)
+                for j in range(self.data.best_sol.solution.shape[1]):
+                    self.tableWidget.setItem(j + 1, i,
+                                             QtWidgets.QTableWidgetItem(str(self.data.best_sol.solution[i][j])))
+
+                if i % 4 == 0:
+                    self.tableWidget.setSpan(0, i, 1, 4)
+                    counter_days += 1
+
+            self.try_to_show_graph()
+            self.print_nursesf()
+            self.print_roomsf()
+            self.value.setText("Function value: " + str(self.data.value_of_solution()))
+
+            if self.data.value_of_solution() == inf:
+                self.error_solution.setText("Solution couldn't be found")
+                self.error_solution.setStyleSheet("color: red")
+
+            else:
+                self.error_solution.setText("")
+        except:
+            self.error_solution.setText("Solution couldn't be found")
+            self.error_solution.setStyleSheet("color: red")
+
+    def submit_with_test_file(self):
+        try:
+            self.data = Solution(2023, 1, None, None, None, self.method, self.iterations, self.aspiration_criteria, True, self.choose_file_name.currentText())
+
+            self.tableWidget.setColumnCount(self.data.best_sol.solution.shape[0])
+            self.tableWidget.setRowCount(self.data.best_sol.solution.shape[1] + 1)
+
+            counter_days = 1
+
+            for i in range(self.data.best_sol.solution.shape[0]):
+                table = QtWidgets.QTableWidgetItem("Day " + str(counter_days))
+                table.setTextAlignment(4)
+                self.tableWidget.setItem(0, i, table)
+                for j in range(self.data.best_sol.solution.shape[1]):
+                    self.tableWidget.setItem(j + 1, i,
+                                             QtWidgets.QTableWidgetItem(str(self.data.best_sol.solution[i][j])))
+
+                if i % 4 == 0:
+                    self.tableWidget.setSpan(0, i, 1, 4)
+                    counter_days += 1
+
+            self.try_to_show_graph()
+            self.print_nursesf()
+            self.print_roomsf()
+            self.value.setText("Function value: " + str(self.data.value_of_solution()))
+
+            if self.data.value_of_solution() == inf:
+                self.error_solution.setText("Solution couldn't be found")
+                self.error_solution.setStyleSheet("color: red")
+        except:
+            self.error_solution.setText("cos sie spierdzielip")
+            self.error_solution.setStyleSheet("color: red")
+
+
+    def config_file(self):
+         if self.choose_file_name.currentText() == "<- My own data":
+             self.nurses.setDisabled(False)
+             self.rooms.setDisabled(False)
+             self.year.setDisabled(False)
+             self.month.setDisabled(False)
+         else:
+             self.nurses_ = np.inf
+             self.rooms_ = np.inf
+             self.year_ = np.inf
+             self.month_ = np.inf
+             self.nurses.setDisabled(True)
+             self.rooms.setDisabled(True)
+             self.year.setDisabled(True)
+             self.month.setDisabled(True)
 
 def app():
 
