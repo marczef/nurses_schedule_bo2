@@ -418,7 +418,7 @@ class Ui_MainWindow(object):
             self.try_to_show_graph()
             self.print_nursesf()
             self.print_roomsf()
-            self.value.setText("Function value: " + str(self.data.value_of_solution()))
+            self.value.setText("Function value: " + str(self.data.best_sol.value_of_solution()))
 
             if self.data.value_of_solution() == inf:
                 self.error_solution.setText("Solution couldn't be found")
@@ -454,13 +454,13 @@ class Ui_MainWindow(object):
             self.try_to_show_graph()
             self.print_nursesf()
             self.print_roomsf()
-            self.value.setText("Function value: " + str(self.data.value_of_solution()))
+            self.value.setText("Function value: " + str(self.data.best_sol.value_of_solution()))
 
             if self.data.value_of_solution() == inf:
                 self.error_solution.setText("Solution couldn't be found")
                 self.error_solution.setStyleSheet("color: red")
         except:
-            self.error_solution.setText("cos sie spierdzielip")
+            self.error_solution.setText("ERROR")
             self.error_solution.setStyleSheet("color: red")
 
 
