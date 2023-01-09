@@ -468,6 +468,72 @@
        </rect>
       </property>
      </widget>
+     <widget class="QComboBox" name="choose_file_name">
+      <property name="geometry">
+       <rect>
+        <x>1020</x>
+        <y>60</y>
+        <width>161</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <item>
+       <property name="text">
+        <string>&lt;- My own data</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>test1.xlsx</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>test2.xlsx</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>test3.xlsx</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>test4.xlsx</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>test5.xlsx</string>
+       </property>
+      </item>
+     </widget>
+     <widget class="QLabel" name="label_config_file">
+      <property name="geometry">
+       <rect>
+        <x>1020</x>
+        <y>20</y>
+        <width>201</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>(optional) Choose config file:</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="value">
+      <property name="geometry">
+       <rect>
+        <x>550</x>
+        <y>450</y>
+        <width>321</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">

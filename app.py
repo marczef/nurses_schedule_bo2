@@ -67,7 +67,7 @@ class Ui_MainWindow(object):
         self.label_nurses.setGeometry(QtCore.QRect(10, 93, 261, 41))
         self.label_nurses.setObjectName("label_nurses")
         self.estimated_number_of_nurses = QtWidgets.QLabel(self.tab_1)
-        self.estimated_number_of_nurses.setGeometry(QtCore.QRect(250, 50, 261, 41))
+        self.estimated_number_of_nurses.setGeometry(QtCore.QRect(250, 50, 300, 41))
         self.estimated_number_of_nurses.setText("")
         self.estimated_number_of_nurses.setObjectName("estimated_number_of_nurses")
         self.month = QtWidgets.QSpinBox(self.tab_1)
